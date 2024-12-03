@@ -1,11 +1,11 @@
-CREATE TABLE products(
+CREATE TABLE inventory(
    name VARCHAR(50) PRIMARY KEY,
    location VARCHAR(50) NOT NULL,
    price VARCHAR(30) NOT NULL,
    quantity INT(30) NOT NULL
 );
 
-INSERT INTO products (name, location, price, quantity) 
+INSERT INTO inventory (name, location, price, quantity) 
 VALUES
 ('apple', 'A2', '0.69', 32),
 ('green apple', 'A2', '0.72', 28),
