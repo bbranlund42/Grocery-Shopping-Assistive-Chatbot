@@ -48,6 +48,9 @@ const Food = mongoose.model('Food', FoodSchema); // this creates the object that
     "description": "Ripe Yellow Bananas"
 }); */
 
+console.log(await Food.findOne({
+    name: 'apple'
+}).exec()); 
 
 // Conect to MongoD and start the backend serever 
 connectToMongo(); 
