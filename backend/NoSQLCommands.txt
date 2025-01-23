@@ -1,0 +1,25 @@
+sudo systemctl start mongod
+sudo systemctl status mongod
+sudo systemctl stop mongod
+
+START MONGODB SERVICE
+mongosh
+
+CREATING database
+db.createCollection("products");
+db.products.insertMany([  {    "product_id": "P001",    "product_name": "Apple",    "category": "Fruit",    "quantity": 100,    "price": 0.5,    "description": "Fresh red apple"  },
+  {    "product_id": "P002",    "product_name": "Banana",    "category": "Fruit",    "quantity": 150,    "price": 0.3,    "description": "Ripe yellow bananas"  }]);
+
+db.createCollection("users");
+db.users.insertMany([ { "user_id": "U001", "name": "John Doe", "email": "johndoe@example.com", "password": "hashedpassword1", /* Store hashed passwords, not plain text*/ "shopping_list": [ { "product_id": "P001", "quantity": 3 }, { "product_id": "P002", "quantity": 5 }] },
+ { "user_id": "U002", "name": "Jane Smith", "email": "janesmith@example.com", "password": "hashedpassword2", "shopping_list": [ { "product_id": "P002", "quantity": 2 }] }] );
+
+
+use database;
+db.users.find();
+db.products.find();
+
+
+FROM TUTORIAL, IT SAY THIS MAKE LOOK UP'S FASTER
+db.products.createIndex({ "product_id": 1 });
+db.products.find({ "product_id": "P001" });
