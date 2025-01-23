@@ -7,6 +7,7 @@ import HomePage from "./components/HomePage/HomePage";
 import CreateAccount from "./components/CreateAccount/CreateAccount";
 import SearchShopping from "./components/SearchShopping/SearchShopping";
 import ShoppingCartCheckout from "./components/ShoppingCartCheckout/ShoppingCartCheckout";
+import JustChatting from "./components/JustChatting/JustChatting";
 import CapMap from "./components/CapMap/CapMap";
 import NavigatePage from "./components/NavigatePage/NavigatePage";
 import reportWebVitals from "./reportWebVitals";
@@ -25,6 +26,7 @@ root.render(
         <Route path="ShoppingCartCheckout" element={<ShoppingCartCheckout />} />
         <Route path="CapMap" element={<CapMap />} />
         <Route path="NavigatePage" element={<NavigatePage />} />
+        <Route path="JustChatting" element={<JustChatting />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>
