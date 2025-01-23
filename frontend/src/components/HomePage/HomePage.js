@@ -45,7 +45,7 @@ const HomePage = () => {
             className="w-full text-left text-blue-600 py-2 px-3 rounded-md hover:bg-blue-100 hover:shadow-md transition-all duration-200"
             onClick={() => navigate("/JustChatting")}
           >
-            Option 2
+            Just Chatting
           </button>
           <button
             className="w-full text-left text-blue-600 py-2 px-3 rounded-md hover:bg-blue-100 hover:shadow-md transition-all duration-200"
