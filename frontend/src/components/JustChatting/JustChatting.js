@@ -1,17 +1,23 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { House, Pin } from "lucide-react";
+import axios from "axios";
 
 function JustChatting() {
   const navigate = useNavigate();
 
-  // all the items use this so they are all updated together
-  // if you increase one item they all increase
-  // we can fix later
-  const [quantity, setQuantity] = useState(1);
+  {/*Used for getting promt*/}
+  const [prompt, setPrompt] = useState("");
+  const [response, setResponse] = useState("");
 
-  const incrementQuantity = () => setQuantity(quantity + 1);
-  const decrementQuantity = () => setQuantity(quantity > 1 ? quantity - 1 : 1);
+  const handleSubmit = async () => {
+    try {
+      const res = await axios.post("http://localhost:5000/invoke-model", { prompt }); // location of the fastapi server
+      setResponse(res.data.generation);
+    } catch (error) {
+      console.error("Error invoking model:", error);
+    }
+  };
 
   return (
     <>
@@ -45,8 +51,8 @@ function JustChatting() {
         {/* Chatbot Body*/}
         <div className="chat-body p-5 h-96 overflow-y-auto flex flex-col"> 
           <div className="message bot-message p-4 break-words whitespace-pre-line flex mt-4 mb-4 bg-slate-300 max-w-48 rounded-tl-2xl rounded-tr-2xl rounded-bl-sm rounded-br-2xl">
-            <p className="message-text">
-              Hello! Ask questions here!
+            <p className="message-text" placeholder="Hello! Ask questions here!">
+              {response}
             </p>
           </div>
           <div className="message user-message flex break-words whitespace-pre-line p-4 mt-4 mb-4 flex-col self-end text-white bg-blue-500 max-w-48 rounded-tl-2xl rounded-tr-2xl rounded-bl-2xl rounded-br-sm">
@@ -59,8 +65,8 @@ function JustChatting() {
         {/* Chatbot Footer*/}
         <div className="chat-footer absolute bottom-0 w-full ms-5 mt-10 mb-5">
           <form action="#" className="chat-form flex w-11/12 items-center justify-between border border-blue-300 rounded-full p-2 shadow-sm">
-            <input type="text" placeholder="Ask questions here..." className="message-input bg-slate-200 w-full p-1.5" required></input>
-            <button type="submit" className="material-symbols-rounded bg-blue-500 h-10 w-10 rounded-2xl rounded-">↑</button>
+            <input value={prompt} onChange={(e) => setPrompt(e.target.value)} type="text" placeholder="Ask questions here..." className="message-input bg-slate-200 w-full p-1.5" required></input>
+            <button onClick={handleSubmit} type="submit" className="material-symbols-rounded bg-blue-500 h-10 w-10 rounded-2xl rounded-">↑</button>
           </form>
         </div>
       </div>
