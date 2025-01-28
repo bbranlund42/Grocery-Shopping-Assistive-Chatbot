@@ -1,10 +1,74 @@
+# 2 Parts of this README, MONGODB and FASTAPI
+
+**Quick Links:**
+- [README: FastAPI Bedrock API Setup](#overview)
+- [MongoDB Setup and Usage](#mongodb-setup-and-usage)
+
+---
+
+
+# README: FastAPI Bedrock API Setup
+
+## Overview
+This project provides a FastAPI-based backend to interact with Amazon Bedrock Runtime. It allows users to invoke a machine learning model using the `/invoke-model` endpoint.
+
+---
+
+## Prerequisites
+
+Before setting up the project, ensure you have the following installed:
+
+
+1. **AWS CLI** (configured with appropriate credentials)
+   - [Install AWS CLI]
+   - Run `aws configure` to set up your access key, secret key, and region.
+
+---
+
+## Installation Steps
+
+
+### Step 1: Install Dependencies
+
+Install required Python libraries:
+```bash
+pip install -r requirements.txt
+```
+
+these requirements are 
+```bash
+fastapi
+uvicorn
+boto3
+pydantic
+```
+
+### Step 2: Configure AWS Credentials
+
+Ensure your AWS CLI is configured and has the necessary permissions to interact with Amazon Bedrock. Use:
+```bash
+aws configure
+```
+Provide your access key, secret key, and region (e.g., `us-east-2`).
+
+---
+
+## Running the Server Locally
+
+Start the FastAPI server using the following command:
+```bash
+uvicorn fastapp:app --host 0.0.0.0 --port 5000 --reload
+```
+
+---
+---
 # MongoDB Setup and Usage
 
 This guide outlines how to set up and run a MongoDB database, create collections, insert data, and perform basic queries.
 
 ## Prerequisites
 
-Ensure MongoDB is installed on your system. If not, follow the [official installation guide](https://www.mongodb.com/docs/manual/installation/).
+If you don't have Mongodb installed, follow the [official installation guide](https://www.mongodb.com/docs/manual/installation/).
 
 ---
 
