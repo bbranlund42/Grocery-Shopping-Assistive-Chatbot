@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { House, Pin } from "lucide-react";
+import { House, Pin, Send } from "lucide-react";
 import axios from "axios";
 
 function JustChatting() {
@@ -66,7 +66,7 @@ function JustChatting() {
         <div className="chat-footer absolute bottom-0 w-full ms-5 mt-10 mb-5">
           <form action="#" className="chat-form flex w-11/12 items-center justify-between border border-blue-300 rounded-full p-2 shadow-sm">
             <input value={prompt} onChange={(e) => setPrompt(e.target.value)} type="text" placeholder="Ask questions here..." className="message-input bg-slate-200 w-full p-1.5" required></input>
-            <button onClick={handleSubmit} type="submit" className="material-symbols-rounded bg-blue-500 h-10 w-10 rounded-2xl rounded-">↑</button>
+            <button onClick={handleSubmit} type="submit" className="material-symbols-rounded bg-blue-500 h-10 w-10 rounded-2xl flex items-center justify-center"><Send size={24} /></button>
           </form>
         </div>
       </div>
