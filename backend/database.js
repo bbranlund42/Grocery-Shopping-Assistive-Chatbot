@@ -8,11 +8,14 @@ const PORT = 3500;
 
 // connect to Mongo function
 const connectToMongo = async () => {
-    await mongoose.connect(database, {
-        useUnifiedTopology: true, 
-        useNewUrlParser: true
-    }); 
+    try{
+        await mongoose.connect(database); 
+    }
+    catch (err) {
+        console.error(err); 
+    }
 }
+
 // This sets the boundaries of what a new item must have if you were to create one 
 const Schema = mongoose.Schema; 
 const FoodSchema = new Schema({
@@ -38,6 +41,22 @@ const FoodSchema = new Schema({
 
 const Food = mongoose.model('Food', FoodSchema); // this creates the object that lets you do database things (remove, add, find) 
 
+const findItem = async (req, res) => {
+    const query = await Food.findOne({product_name: req.product_name}).exec(); 
+    console.log(query); 
+}
+
+app.get('/products', async (req, res) => {
+    const result = await Food.find().exec(); 
+    res.json(result); 
+})
+
+app.get('/users', async (req, res) => {
+    const result = await Food.findOne({product_name: req.params.product_name}).exec();  
+    console.log("joe"); 
+    res.json(result); 
+})
+
 // adds new thing to database
 /* const newFood = Food.create({
     "product_id": "P002", 
@@ -48,10 +67,11 @@ const Food = mongoose.model('Food', FoodSchema); // this creates the object that
     "description": "Ripe Yellow Bananas"
 }); */
 
-console.log(await Food.findOne({
-    name: 'apple'
-}).exec()); 
+
 
 // Conect to MongoD and start the backend serever 
 connectToMongo(); 
-app.listen(PORT); 
+mongoose.connection.once('open', () => {
+    console.log("Server is running"); 
+    app.listen(PORT); 
+})
