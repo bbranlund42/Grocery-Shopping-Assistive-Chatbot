@@ -1,20 +1,27 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { House, Pin } from "lucide-react";
+import { House, Pin, Send } from "lucide-react";
+import axios from "axios";
 
 function JustChatting() {
   const navigate = useNavigate();
 
-  // all the items use this so they are all updated together
-  // if you increase one item they all increase
-  // we can fix later
-  const [quantity, setQuantity] = useState(1);
+  {/*Used for getting promt*/}
+  const [prompt, setPrompt] = useState("");
+  const [response, setResponse] = useState("");
 
-  const incrementQuantity = () => setQuantity(quantity + 1);
-  const decrementQuantity = () => setQuantity(quantity > 1 ? quantity - 1 : 1);
+  const handleSubmit = async () => {
+    try {
+      const res = await axios.post("http://localhost:5000/invoke-model", { prompt }); // location of the fastapi server
+      setResponse(res.data.generation);
+    } catch (error) {
+      console.error("Error invoking model:", error);
+    }
+  };
 
   return (
-    <div className="bg-white min-h-screen flex flex-col items-center">
+    <>
+     <div className="bg-white min-h-screen flex flex-col items-center">
       {/* Header */}
       <div className="w-full flex items-center justify-between p-4 bg-blue-100">
         <button
@@ -30,94 +37,42 @@ function JustChatting() {
           <House size={24} />
         </button>
       </div>
+      <div className="container relative justify-center align-middle min-h-80 mt-24 w-10/12 bg-slate-200 rounded-2xl">
+        <div className="chatbot-popup bg-blue-500 w-auto rounded-t-2xl">
 
-      {/* Search Container */}
-      <div className="w-full max-w-md flex flex-col items-center my-4">
-        <div className="flex items-center border border-blue-300 rounded-full p-2 shadow-sm w-full">
-          <Pin size={24} />
-          <input
-            type="text"
-            placeholder="are there apples in the store?"
-            className="flex-grow ml-2 border-none outline-none"
-          />
+          {/* Chatbot Header*/}
+          <div className="chat-header flex text-3xl pb-3 pt-3 ps-3 justify-between">
+            <div className="header-info flex justify-center mt-4 mb-4">
+              <h2 className="logo-text text-4xl">Test for chatbot</h2>
+            </div>
+          </div>
+        </div>
+
+        {/* Chatbot Body*/}
+        <div className="chat-body p-5 h-96 overflow-y-auto flex flex-col"> 
+          <div className="message bot-message p-4 break-words whitespace-pre-line flex mt-4 mb-4 bg-slate-300 max-w-48 rounded-tl-2xl rounded-tr-2xl rounded-bl-sm rounded-br-2xl">
+            <p className="message-text" placeholder="Hello! Ask questions here!">
+              {response}
+            </p>
+          </div>
+          <div className="message user-message flex break-words whitespace-pre-line p-4 mt-4 mb-4 flex-col self-end text-white bg-blue-500 max-w-48 rounded-tl-2xl rounded-tr-2xl rounded-bl-2xl rounded-br-sm">
+            <p className="message-text">
+              User text here
+            </p>
+          </div>
+        </div>
+
+        {/* Chatbot Footer*/}
+        <div className="chat-footer absolute bottom-0 w-full ms-5 mt-10 mb-5">
+          <form action="#" className="chat-form flex w-11/12 items-center justify-between border border-blue-300 rounded-full p-2 shadow-sm">
+            <input value={prompt} onChange={(e) => setPrompt(e.target.value)} type="text" placeholder="Ask questions here..." className="message-input bg-slate-200 w-full p-1.5" required></input>
+            <button onClick={handleSubmit} type="submit" className="material-symbols-rounded bg-blue-500 h-10 w-10 rounded-2xl flex items-center justify-center"><Send size={24} /></button>
+          </form>
         </div>
       </div>
-
-      {/* Results Container */}
-      <div className="w-full max-w-md">
-        {/* Result Item 1 */}
-        <div className="flex items-center justify-between border rounded-lg p-4 my-2 shadow-sm">
-          <div className="flex flex-col">
-            <div className="text-lg font-bold">Red Apple</div>
-            <div className="text-sm text-blue-500">Aisle H23</div>
-            <div>36 lbs In Stock</div>
-          </div>
-          <div className="flex items-center">
-            <button
-              className="bg-gray-300 w-8 h-8 flex items-center justify-center rounded"
-              onClick={decrementQuantity}
-            >
-              -
-            </button>
-            <span className="mx-2">{quantity}</span>
-            <button
-              className="bg-gray-300 w-8 h-8 flex items-center justify-center rounded"
-              onClick={incrementQuantity}
-            >
-              +
-            </button>
-          </div>
-        </div>
-
-        {/* Result Item 2 */}
-        <div className="flex items-center justify-between border rounded-lg p-4 my-2 shadow-sm">
-          <div className="flex flex-col">
-            <div className="text-lg font-bold">Green Apple</div>
-            <div className="text-sm text-blue-500">Aisle H23</div>
-            <div>55 lbs In Stock</div>
-          </div>
-          <div className="flex items-center">
-            <button
-              className="bg-gray-300 w-8 h-8 flex items-center justify-center rounded"
-              onClick={decrementQuantity}
-            >
-              -
-            </button>
-            <span className="mx-2">{quantity}</span>
-            <button
-              className="bg-gray-300 w-8 h-8 flex items-center justify-center rounded"
-              onClick={incrementQuantity}
-            >
-              +
-            </button>
-          </div>
-        </div>
-
-        {/* Result Item 3 */}
-        <div className="flex items-center justify-between border rounded-lg p-4 my-2 shadow-sm bg-red-100">
-          <div className="flex flex-col">
-            <div className="text-lg font-bold">Honey Crisp Apple</div>
-            <div className="text-sm text-blue-500">Aisle H23</div>
-            <div>0 lbs In Stock</div>
-          </div>
-          <div className="flex items-center">
-            <button
-              className="bg-gray-300 w-8 h-8 flex items-center justify-center rounded"
-              onClick={decrementQuantity}
-            >
-              -
-            </button>
-            <span className="mx-2">{quantity}</span>
-            <button
-              className="bg-gray-300 w-8 h-8 flex items-center justify-center rounded"
-              onClick={incrementQuantity}
-            >
-              +
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+     </div>
+    </>
+    
   );
 }
 
