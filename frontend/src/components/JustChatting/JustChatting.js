@@ -12,7 +12,7 @@ function JustChatting() {
 
   const handleSubmit = async () => {
     try {
-      const res = await axios.post("http://localhost:5000/invoke-model", { prompt }); // location of the fastapi server
+      const res = await axios.post("http://localhost:5001/invoke-model", { prompt }); // location of the fastapi server
       setResponse(res.data.generation);
     } catch (error) {
       console.error("Error invoking model:", error);

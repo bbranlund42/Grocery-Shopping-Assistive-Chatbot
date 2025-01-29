@@ -5,12 +5,14 @@ const database =
 'mongodb+srv://user:123@capgemini.zcb5v.mongodb.net/?retryWrites=true&w=majority&appName=CapGemini'; 
 import mongoose from 'mongoose'; 
 import express  from 'express'; 
+import cors from 'cors';
 const PORT = 3500; 
 
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors());
 
 const connectToMongo = async () => {
     await mongoose.connect(database, {
