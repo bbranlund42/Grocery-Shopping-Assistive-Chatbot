@@ -18,7 +18,12 @@ Navigate into the newly created project directory:
 cd App-Name
 ```
 
-### Step 2: Install Required Dependencies
+### Step 2: Initial Install Required Dependencies
+
+### If you have package.json then just
+```bash
+npm install
+```
 
 Navigate to the project directory and install the following dependencies:
 
@@ -46,9 +51,14 @@ Navigate to the project directory and install the following dependencies:
    ```bash
    npm install tailwindcss
    ```
+
+6. **Axios**
+   ```bash
+   npm install axios
+   ```
 Alternatively, you can install all dependencies at once using the following command:
 ```bash
-npm install web-vitals tailwindcss postcss autoprefixer lucide-react react-router-dom lucide
+npm install web-vitals tailwindcss postcss autoprefixer lucide-react react-router-dom lucide axios
 ```
 
 ### Step 3: Initialize Tailwind CSS
