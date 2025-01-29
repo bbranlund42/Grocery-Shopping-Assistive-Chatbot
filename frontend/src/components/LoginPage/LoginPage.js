@@ -8,7 +8,7 @@ const LoginPage = () => {
     <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
       <div className="bg-white p-6 rounded shadow-md w-80">
         <div className="text-center mb-4">
-          <h1 className="text-2xl font-bold">Capgemini</h1>
+          <img src={require('./Capgemini-Logo.png')} alt="Capgemini" /> 
         </div>
         <form>
           <div className="mb-4">
