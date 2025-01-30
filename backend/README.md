@@ -190,7 +190,7 @@ Indexing significantly improves the performance of database queries, especially 
 3. **Start the Server:**
    - Run the following command to start the server:
      ```bash
-     node server.js
+     node index.js
      ```
 
 4. **Verify the Server is Running:**
