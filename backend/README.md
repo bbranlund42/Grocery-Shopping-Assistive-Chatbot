@@ -57,7 +57,7 @@ Provide your access key, secret key, and region (e.g., `us-east-2`).
 
 Start the FastAPI server using the following command:
 ```bash
-uvicorn fastapp:app --host 0.0.0.0 --port 5000 --reload
+uvicorn fastapp:app --host 0.0.0.0 --port 5001 --reload
 ```
 
 ---

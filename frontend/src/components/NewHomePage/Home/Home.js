@@ -26,7 +26,7 @@ export default function HomePage() {
           Make Shopping Easy
         </h1>
         <p className="text-2xl text-gray-200 mb-8">
-          Be An Aglige Shopper
+          Be An Aglie Shopper with AI
         </p>
         
         {/* Buttons Container */}
@@ -34,7 +34,7 @@ export default function HomePage() {
           <button 
             className="px-6 py-2 bg-white text-gray-900 rounded-md hover:bg-gray-100 transition-colors duration-300"
             onClick={() => navigate("/JustChatting")} >
-            Just Chatting
+            Start Chatting
           </button>
         </div>
       </div>

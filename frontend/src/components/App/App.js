@@ -1,15 +1,12 @@
 import React from 'react';
-import LoginPage from '../LoginPage/LoginPage';
 import Header from '../NewHomePage/Header/Header';
-import AppRoutes from '../AppRoutes/AppRoutes';
-// import HomePage from './components/HomePage/HomePage';
+import HomePage from '../NewHomePage/Home/Home';
 
 function App() {
-  // return <HomePage />;
     return(
     <div>
       <Header />
-      <AppRoutes />
+      <HomePage />
     </div>
   );
 }
