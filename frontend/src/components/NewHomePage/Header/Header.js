@@ -6,11 +6,10 @@ import { useNavigate } from "react-router-dom";
 export default function Header() {
     const navigate = useNavigate();
     const menuItems = [
-        { label: 'Products', href: '#' },
+        // { label: 'Products', href: '/Products' },
+        { label: 'Products', href: '#products' },
         { label: 'Just Chatting', href: "/JustChatting" },
         { label: 'Cart', href: '/ShoppingCartCheckout' },
-        { label: 'Resources', href: '#' },
-        { label: 'Pricing', href: '#' },
         { label: 'Contact', href: '#' }
     ];
 
@@ -39,6 +38,7 @@ export default function Header() {
                 {item.label}
               </a>
             ))}
+            
             
             {/* Auth Buttons */}
             <div className="flex items-center space-x-4">

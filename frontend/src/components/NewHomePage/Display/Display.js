@@ -39,7 +39,7 @@ const Display = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <div id="products" className="max-w-7xl mx-auto px-4 py-8 ">
       {/* Search and Filters */}
       <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
         {/* Search Bar */}

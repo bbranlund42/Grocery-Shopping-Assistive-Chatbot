@@ -32,7 +32,7 @@ function JustChatting() {
         </button>
         <button
           className="bg-blue-500 text-white w-10 h-10 flex items-center justify-center rounded fixed top-4 right-4"
-          onClick={() => navigate("/HomePage")}
+          onClick={() => navigate("/")}
         >
           <House size={24} />
         </button>

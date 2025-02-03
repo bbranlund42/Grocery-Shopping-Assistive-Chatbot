@@ -10,6 +10,7 @@ import ShoppingCartCheckout from "./components/ShoppingCartCheckout/ShoppingCart
 import JustChatting from "./components/JustChatting/JustChatting";
 import CapMap from "./components/CapMap/CapMap";
 import NavigatePage from "./components/NavigatePage/NavigatePage";
+import NewHomePage from "./components/NewHomePage/Home/Home";
 import reportWebVitals from "./reportWebVitals";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
@@ -19,6 +20,7 @@ root.render(
     <BrowserRouter>
       <Routes>
         <Route index element={<App />} />
+        <Route path="/" element={<NewHomePage />} />
         <Route path="LoginPage" element={<LoginPage />} />
         <Route path="HomePage" element={<HomePage />} />
         <Route path="CreateAccount" element={<CreateAccount />} />
