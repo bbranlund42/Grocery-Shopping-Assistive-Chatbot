@@ -3,6 +3,14 @@ import { Search, ShoppingCart } from 'lucide-react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
+import fruitImage from '../Display/Icons/fruitImage.jpg';
+import vegetableImage from '../Display/Icons/vegetableImage.jpeg';
+import bakeryImage from '../Display/Icons/bakeryImage.jpg';
+import candyImage from '../Display/Icons/candyImage.jpg';
+import snackImage from '../Display/Icons/snackImage.jpg';
+
+
+
 export default function Display() {
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState('');
@@ -148,6 +156,24 @@ export default function Display() {
       } 
     }
 
+    function setImages(i){
+      if(i === "Fruit"){
+        return fruitImage
+      }
+      else if(i === "Vegetable"){
+        return vegetableImage
+      }
+      else if(i === "Bakery"){
+        return bakeryImage
+      }
+      else if(i === "Candy"){
+        return candyImage
+      }
+      else if(i === "Snack"){
+        return snackImage
+      }
+    }
+
     useEffect(() => {
       axios.get('http://localhost:3500/data') 
         .then(response => {
@@ -164,7 +190,7 @@ export default function Display() {
           foodItems.map((food) => (
             <div key={food._id} className="bg-red rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow">
               <img
-                src={food.image}
+                src={setImages(food.category)}
                 alt={food.name}
                 className={changeBG(food.quantity)}
               />
