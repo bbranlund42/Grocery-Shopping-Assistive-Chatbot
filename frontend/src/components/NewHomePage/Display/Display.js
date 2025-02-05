@@ -44,8 +44,9 @@ export default function Display() {
         console.error('Error adding to cart:', error);
       }
   };
-    return (
-      <>{/* Search and Filters */}
+  return (
+    <div id="products" className="max-w-7xl mx-auto px-4 py-8">
+      {/* Search and Filters */}
       <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
         <div className="relative w-full sm:w-96">
           <input
@@ -57,7 +58,7 @@ export default function Display() {
           />
           <Search className="absolute right-3 top-2.5 text-gray-400" size={20} />
         </div>
-
+  
         <div className="flex gap-4 items-center">
           <button className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800">
             New
@@ -67,13 +68,13 @@ export default function Display() {
           </button>
         </div>
       </div>
-
+  
       {/* Product Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Foodlist />
-      </div></>
-        
-    )
+        <Foodlist />
+      </div>
+    </div>
+  );
   };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

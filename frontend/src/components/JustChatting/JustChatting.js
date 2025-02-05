@@ -61,12 +61,9 @@ function JustChatting() {
     return (
       <div
         className={`message ${chat.role === "model" ? "bot" : "user"
-          }-message flex break-words whitespace-pre-line p-2 mt-2 mb-2 flex-col ${chat.role === "model"
-            ? "self-start bg-slate-300 text-black"
-            : "self-end bg-blue-500 text-white"
-          } max-w-48 rounded-tl-xl rounded-tr-xl ${chat.role === "model"
-            ? "rounded-br-xl rounded-bl-sm"
-            : "rounded-bl-xl rounded-br-sm"
+          }-message flex break-words whitespace-pre-line p-2 mt-2 mb-2 flex-col max-w-48 rounded-tl-xl rounded-tr-xl ${chat.role === "model"
+            ? "self-start bg-slate-300 rounded-br-xl rounded-bl-sm text-black"
+            : "self-end bg-blue-500 rounded-bl-xl rounded-br-sm text-white"
           }`}
       >
         {chat.role === "model" && <Bot />}
@@ -140,7 +137,7 @@ function JustChatting() {
 
   // chat body reference to update the scroll/ auto snap
   const chatBodyRef = useRef(null);
-  
+
   // auto snap to the bottom of the chat body
   useEffect(() => {
     if (chatBodyRef.current) {
