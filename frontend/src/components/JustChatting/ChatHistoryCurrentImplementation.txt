@@ -1,0 +1,15 @@
+First Question: Hello
+First prompt: Hello
+First Response: Hello! How can I assist you today?
+
+Second Question: How are you today
+Second prompt: Hello
+                Hello! How can I assist you today?
+               How are you today
+Second Response: I'm doing well, thanks for asking!
+                 I'm a large language model, so I don't have feelings or emotions like humans do,
+                 but I'm always happy to chat and help with any questions or topics you'd like to discuss.
+                 How about you? How's your day going so far?
+
+We can format what we send to the fastapp.py in the frontend since we will already have the history.
+Or we can trim everything off and just send the current response
