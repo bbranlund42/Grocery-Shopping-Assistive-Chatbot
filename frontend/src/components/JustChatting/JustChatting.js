@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { House, Pin, Send, Bot } from "lucide-react";
 import axios from "axios";
@@ -62,12 +62,12 @@ function JustChatting() {
       <div
         className={`message ${chat.role === "model" ? "bot" : "user"
           }-message flex break-words whitespace-pre-line p-2 mt-2 mb-2 flex-col ${chat.role === "model"
-            ? "self-start bg-slate-300"
-            : "self-end bg-blue-500"
+            ? "self-start bg-slate-300 text-black"
+            : "self-end bg-blue-500 text-white"
           } max-w-48 rounded-tl-xl rounded-tr-xl ${chat.role === "model"
             ? "rounded-br-xl rounded-bl-sm"
             : "rounded-bl-xl rounded-br-sm"
-          } text-white`}
+          }`}
       >
         {chat.role === "model" && <Bot />}
         <p className="message-text">{chat.text}</p>
@@ -110,7 +110,7 @@ function JustChatting() {
     return (
       <form
         action="#"
-        className="chat-form flex w-11/12 items-center justify-between border border-blue-300 rounded-full p-2 shadow-sm"
+        className="chat-form flex w-10/12 items-center justify-center border border-blue-300 rounded-full p-2 shadow-sm"
         onSubmit={handleFormSubmit}
       >
         <input
@@ -138,6 +138,16 @@ function JustChatting() {
     }
   };
 
+  // chat body reference to update the scroll/ auto snap
+  const chatBodyRef = useRef(null);
+  
+  // auto snap to the bottom of the chat body
+  useEffect(() => {
+    if (chatBodyRef.current) {
+      chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
+    }
+  }, [chatHistory]);
+
   return (
     <>
       <div className="bg-white min-h-screen flex flex-col items-center">
@@ -156,7 +166,7 @@ function JustChatting() {
             <House size={24} />
           </button>
         </div>
-        <div className="container relative justify-center align-middle min-h-80 mt-24 w-10/12 bg-slate-200 rounded-2xl">
+        <div className="container flex flex-col relative justify-center align-middle min-h-80 mt-24 w-10/12 bg-slate-200 rounded-2xl">
           <div className="chatbot-popup bg-blue-500 w-auto rounded-t-2xl">
             {/* Chatbot Header*/}
             <div className="chat-header flex text-3xl pb-3 pt-3 ps-3 justify-between">
@@ -167,7 +177,7 @@ function JustChatting() {
           </div>
 
           {/* Chatbot Body*/}
-          <div className="chat-body p-5 h-96 overflow-y-auto flex flex-col">
+          <div ref={chatBodyRef} className="chat-body p-5 h-96 overflow-y-auto flex flex-col smooth-scroll">
             <div className="message bot-message p-4 break-words whitespace-pre-line flex mt-4 mb-4 bg-slate-300 max-w-48 rounded-tl-2xl rounded-tr-2xl rounded-bl-sm rounded-br-2xl">
               <Bot />
               <p
@@ -184,7 +194,7 @@ function JustChatting() {
           </div>
 
           {/* Chatbot Footer*/}
-          <div className="chat-footer absolute bottom-0 w-full ms-5 mt-10 mb-5">
+          <div className="chat-footer fixed justify-center items-center bottom-0 w-full ms-1 mt-10 mb-5">
             <ChatForm
               chatHistory={chatHistory}
               setChatHistory={setChatHistory}
