@@ -25,4 +25,4 @@ yarn-debug.log*
 yarn-error.log*
 
 # python
-/__pychache__
+/backend/__pychache__

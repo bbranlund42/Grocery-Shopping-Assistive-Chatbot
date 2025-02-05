@@ -61,13 +61,10 @@ function JustChatting() {
     return (
       <div
         className={`message ${chat.role === "model" ? "bot" : "user"
-          }-message flex break-words whitespace-pre-line p-2 mt-2 mb-2 flex-col ${chat.role === "model"
-            ? "self-start bg-slate-300"
-            : "self-end bg-blue-500"
-          } max-w-48 rounded-tl-xl rounded-tr-xl ${chat.role === "model"
-            ? "rounded-br-xl rounded-bl-sm"
-            : "rounded-bl-xl rounded-br-sm"
-          } text-white`}
+          }-message flex break-words whitespace-pre-line p-2 mt-2 mb-2 flex-col max-w-48 rounded-tl-xl rounded-tr-xl ${chat.role === "model"
+            ? "self-start bg-slate-300 rounded-br-xl rounded-bl-sm text-black"
+            : "self-end bg-blue-500 rounded-bl-xl rounded-br-sm text-white"
+          }`}
       >
         {chat.role === "model" && <Bot />}
         <p className="message-text">{chat.text}</p>
