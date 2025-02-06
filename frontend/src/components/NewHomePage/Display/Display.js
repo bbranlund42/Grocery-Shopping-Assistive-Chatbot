@@ -53,7 +53,7 @@ export default function Display() {
       }
   };
   return (
-    <div id="products" className="max-w-7xl mx-auto px-4 py-8">
+    <div id="products" className="w-7xl mx-auto px-4 py-8 bg-slate-200">
       {/* Search and Filters */}
       <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
         <div className="relative w-full sm:w-96">
@@ -188,16 +188,26 @@ export default function Display() {
       <>
         {foodItems.length > 0 ? (
           foodItems.map((food) => (
-            <div key={food._id} className="bg-red rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow">
+            <div key={food._id} className="bg-white rounded-lg shadow-sm p-3 hover:shadow-md transition-shadow">
               <img
                 src={setImages(food.category)}
                 alt={food.name}
-                className={changeBG(food.quantity)}
+                className="w-full h-32 object-cover rounded-md bg-gray-100"
               />
-              <div className="mt-4">
-                <h3 className="text-grey-800 font-medium">{food.product_name}</h3>
-                <p className={changeText(food.quantity)}>{test(food.quantity)}</p>
-                <p className="text-gray-900 font-medium mt-2">${food.price}</p>
+              <div className="mt-2">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-grey-800 font-semibold text-2xl">{food.product_name}</h3>
+                  <div className="text-sm">
+                    <p className={changeText(food.quantity)}>{test(food.quantity)}</p>
+                  </div>
+                </div>
+                
+                <div className="items-center">
+                  
+                  <div className="text-xl">
+                    <p className="text-gray-900 font-medium mt-2">${food.price}</p>
+                  </div>
+                </div>
                 <button 
                       onClick={() => addToCart(food)}
                       className="mt-4 w-full flex items-center justify-center bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 
