@@ -1,41 +1,75 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { House, ShoppingCart, Trash2 } from 'lucide-react';
+import { House, ShoppingCart, Trash2, Minus, Plus } from 'lucide-react';
 import axios from 'axios';
 
-const ShoppingCartCheckout = () => {
+const ShoppingCartCheckout = ({onUpdateCart}) => {
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState([]);
   const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   
-  useEffect(() => {
     const fetchCart = async () => {
       try {
-        //retrieves the cart in the /cart route
-        const response = await axios.get('http://localhost:3000/cart');
+        setLoading(true);
+        const response = await axios.get('http://localhost:4000/cart');
+
         setCartItems(response.data.items || []);
         setTotal(response.data.total || 0);
+
+        if (onUpdateCart) {
+          onUpdateCart(response.data.items || []);
+        }
       } catch (error) {
         console.error('Error fetching cart:', error);
+        setError('Error loading cart. Please try again.');
+        console.error('Error fetching cart:', error);
+      } finally {
+        setLoading(false);
       }
+
+
     };
 
+  useEffect(() => {
     fetchCart();
+
+    const interval = setInterval(fetchCart, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   //this remove the items from the cart
   const removeFromCart = async (productId) => {
     try {
-      const response = await axios.post('http://localhost:3000/cart/remove', { 
-        productId, 
-        quantity: 1 
+      const response = await axios.post('http://localhost:4000/cart/remove', { productId });
+      
+      setCartItems(response.data.items);
+      setTotal(response.data.total);
+      if (onUpdateCart) {
+        onUpdateCart(response.data.items);
+      }
+    } catch (error) {
+      setError('Error removing item. Please try again.');
+      console.error('Error removing item:', error);
+    }
+  };
+  // update quantity
+  const updateQuantity = async (productId, newQuantity) => {
+    try {
+      const response = await axios.post('http://localhost:4000/cart/update', {
+        productId,
+        quantity: newQuantity
       });
       
       setCartItems(response.data.items);
       setTotal(response.data.total);
+      if (onUpdateCart) {
+        onUpdateCart(response.data.items);
+      }
     } catch (error) {
-      console.error('Error removing item:', error);
+      console.error('Error updating quantity:', error);
     }
   };
 
@@ -52,7 +86,7 @@ const ShoppingCartCheckout = () => {
         <div className="text-blue-600 text-2xl font-medium">Shopping Cart</div>
         <button
           className="bg-blue-400 text-white w-10 h-10 flex items-center justify-center rounded"
-          onClick={() => navigate("/HomePage")}
+          onClick={() => navigate("/")}
         >
           <House size={24} />
         </button>
@@ -68,7 +102,7 @@ const ShoppingCartCheckout = () => {
             cartItems.map((item) => (
               <div key={item.productId} className="flex items-center justify-between bg-gray-100 rounded-lg p-2">
                 <div className="flex items-center space-x-3">
-                  <div className="w-16 h-16 bg-red-500 rounded-lg overflow-hidden">
+                  <div className="w-16 h-16 bg-gray-200 rounded-lg overflow-hidden">
                     <img
                       src="/api/placeholder/64/64"
                       alt={item.name}
@@ -82,7 +116,21 @@ const ShoppingCartCheckout = () => {
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <div className="text-lg">{item.quantity}</div>
+                  <div className="flex items-center space-x-2">
+                    <button 
+                      className="bg-blue-400 text-white w-6 h-6 rounded flex items-center justify-center"
+                      onClick={() => updateQuantity(item.productId, Math.max(0, item.quantity - 1))}
+                    >
+                      -
+                    </button>
+                    <span className="text-lg">{item.quantity}</span>
+                    <button 
+                      className="bg-blue-400 text-white w-6 h-6 rounded flex items-center justify-center"
+                      onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                    >
+                      +
+                    </button>
+                  </div>
                   <button 
                     className="bg-red-400 text-white p-2 rounded"
                     onClick={() => removeFromCart(item.productId)}

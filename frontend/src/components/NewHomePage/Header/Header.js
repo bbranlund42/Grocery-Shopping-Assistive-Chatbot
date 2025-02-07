@@ -9,7 +9,7 @@ export default function Header() {
         // { label: 'Products', href: '/Products' },
         { label: 'Products', href: '#products' },
         { label: 'Just Chatting', href: "/JustChatting" },
-        { label: 'Cart', href: '/ShoppingCartCheckout' },
+        { label: 'Cart', href: '/cart' },
         { label: 'Contact', href: '#' }
     ];
 

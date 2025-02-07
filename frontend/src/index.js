@@ -25,7 +25,7 @@ root.render(
         <Route path="HomePage" element={<HomePage />} />
         <Route path="CreateAccount" element={<CreateAccount />} />
         <Route path="SearchShopping" element={<SearchShopping />} />
-        <Route path="ShoppingCartCheckout" element={<ShoppingCartCheckout />} />
+        <Route path="cart" element={<ShoppingCartCheckout />} />
         <Route path="CapMap" element={<CapMap />} />
         <Route path="NavigatePage" element={<NavigatePage />} />
         <Route path="JustChatting" element={<JustChatting />} />
