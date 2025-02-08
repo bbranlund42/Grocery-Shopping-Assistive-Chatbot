@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { House, Pin, Send, Bot } from "lucide-react";
 import axios from "axios";
+import Header from "../NewHomePage/Header/Header";
 
 function JustChatting() {
   const [chatHistory, setChatHistory] = useState([]);
@@ -12,6 +13,7 @@ function JustChatting() {
   }
   const [prompt, setPrompt] = useState("");
   const [response, setResponse] = useState("");
+  const [isInView,setIsInView] = useState(true);
 
   const generateBotResponse = async (history) => {
     // Helper Function to update chat history
@@ -113,12 +115,12 @@ function JustChatting() {
         <input
           ref={inputRef}
           type="text"
-          placeholder="Ask questions here..."
-          className="message-input bg-slate-200 w-full p-1.5"
+          placeholder={isInView ? "Ex. Add ingredients for applesace to my cart" : "Ask questions here..."}
+          className={`message-input ${isInView ? 'bg-white' : 'bg-slate-200'} w-full p-1.5 focus:outline-none`}
           required
         ></input>
         <button className="material-symbols-rounded bg-blue-500 h-10 w-10 rounded-2xl flex items-center justify-center">
-          <Send size={24} />
+          <Send size={24} color={isInView ? 'black' : 'white'}/>
         </button>
       </form>
     );
@@ -146,33 +148,20 @@ function JustChatting() {
   }, [chatHistory]);
 
   return (
-    <>
       <div className="bg-white min-h-screen flex flex-col items-center">
-        {/* Header */}
-        <div className="w-full flex items-center justify-between p-4 bg-blue-100">
-          <button
-            className="bg-blue-500 text-white w-8 h-8 flex items-center justify-center rounded-full"
-            onClick={() => navigate(-1)}
-          >
-            ⬅
-          </button>
-          <button
-            className="bg-blue-500 text-white w-10 h-10 flex items-center justify-center rounded fixed top-4 right-4"
-            onClick={() => navigate("/")}
-          >
-            <House size={24} />
-          </button>
-        </div>
+        <Header />
         <div className="container flex flex-col relative justify-center align-middle min-h-80 mt-24 w-10/12 bg-slate-200 rounded-2xl">
-          <div className="chatbot-popup bg-blue-500 w-auto rounded-t-2xl">
-            {/* Chatbot Header*/}
-            <div className="chat-header flex text-3xl pb-3 pt-3 ps-3 justify-between">
-              <div className="header-info flex justify-center mt-4 mb-4">
-                <h2 className="logo-text text-4xl">Test for chatbot</h2>
-              </div>
-            </div>
-          </div>
-
+        {isInView ? (
+          <div className="flex flex-col items-center w-full p-8">
+            <h1 className="text-2xl font-semibold mb-8">What can I help you with?</h1>
+            <ChatForm
+              chatHistory={chatHistory}
+              setChatHistory={setChatHistory}
+              generateBotResponse={generateBotResponse}
+            />
+        </div>
+        ) : (
+        <>
           {/* Chatbot Body*/}
           <div ref={chatBodyRef} className="chat-body p-5 h-96 overflow-y-auto flex flex-col smooth-scroll">
             <div className="message bot-message p-4 break-words whitespace-pre-line flex mt-4 mb-4 bg-slate-300 max-w-48 rounded-tl-2xl rounded-tr-2xl rounded-bl-sm rounded-br-2xl">
@@ -198,9 +187,10 @@ function JustChatting() {
               generateBotResponse={generateBotResponse}
             />
           </div>
+          </>
+          )}
         </div>
       </div>
-    </>
   );
 }
 

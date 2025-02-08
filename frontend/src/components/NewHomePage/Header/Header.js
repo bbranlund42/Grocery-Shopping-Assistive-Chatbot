@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useState} from 'react';
 import { useNavigate } from "react-router-dom";
 
 
@@ -15,8 +15,8 @@ export default function Header() {
 
     return (
         <nav className="bg-white shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-24 sm:h-32 items-center">
+      <div className="max-w-7xl mx-auto px-4 ">
+      <div className="flex flex-wrap items-center justify-between gap-4 py-4">
            {/* Logo */}
            <div className="flex-shrink-0 flex items-center">
             <a href="/" className="block h-16 sm:h-32">
@@ -28,7 +28,7 @@ export default function Header() {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="flex flex-wrap items-center gap-4">
             {menuItems.map((item) => (
               <a
                 key={item.label}
