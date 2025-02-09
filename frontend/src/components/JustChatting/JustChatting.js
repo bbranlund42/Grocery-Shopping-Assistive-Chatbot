@@ -75,7 +75,7 @@ function JustChatting() {
   };
 
   // ChatForm
-  const ChatForm = ({ chatHistory, setChatHistory, generateBotResponse }) => {
+  const ChatForm = ({ chatHistory, setChatHistory, generateBotResponse, setIsInView }) => {
     const inputRef = useRef();
 
     const handleFormSubmit = (e) => {
@@ -83,6 +83,9 @@ function JustChatting() {
       const userMessage = inputRef.current.value.trim();
       if (!userMessage) return;
       inputRef.current.value = "";
+
+      // Set isInView to false when first message is sent
+      setIsInView(false);
 
       // Update chat history with the user's message
       setChatHistory((history) => [
@@ -158,6 +161,7 @@ function JustChatting() {
               chatHistory={chatHistory}
               setChatHistory={setChatHistory}
               generateBotResponse={generateBotResponse}
+              setIsInView={setIsInView}
             />
         </div>
         ) : (
@@ -185,6 +189,7 @@ function JustChatting() {
               chatHistory={chatHistory}
               setChatHistory={setChatHistory}
               generateBotResponse={generateBotResponse}
+              setIsInView={setIsInView}
             />
           </div>
           </>

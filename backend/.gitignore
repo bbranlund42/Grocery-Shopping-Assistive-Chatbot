@@ -22,5 +22,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# python
-/__pychache__
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
