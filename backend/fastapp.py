@@ -4,6 +4,8 @@ import boto3
 import json
 from botocore.exceptions import ClientError
 from fastapi.middleware.cors import CORSMiddleware
+import logging
+from datetime import datetime
 
 app = FastAPI()
 
@@ -23,15 +25,36 @@ client = boto3.client("bedrock-runtime", region_name="us-east-2")
 class PromptRequest(BaseModel):
     prompt: str
 
+# Setup logging
+LOG_FILE = "chat_history.log"
+
+def log_message(speaker: str, message: str):
+    """Logs chat history with timestamps."""
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    log_entry = f"[{timestamp}] {speaker}: {message}\n"
+    
+    with open(LOG_FILE, "a", encoding="utf-8") as file:
+        file.write(log_entry)
+
 @app.post("/invoke-model")
 async def invoke_model(request: PromptRequest):
     model_id = "meta.llama3-3-70b-instruct-v1:0"
-    formatted_prompt = f"""
-    <|begin_of_text|><|start_header_id|>user<|end_header_id|>
-    {request.prompt}
-    <|eot_id|>
-    <|start_header_id|>assistant<|end_header_id|>
-    """
+
+    # Parse the chat history from the frontend
+    messages = request.prompt.strip().split("\n")  # Split by newlines
+    formatted_prompt = "<|begin_of_text|>"
+
+    # Alternate user and assistant messages properly
+    for i, message in enumerate(messages):
+        if i % 2 == 0:  # User message
+            formatted_prompt += f"\n<|start_header_id|>user<|end_header_id|>\n{message}\n<|eot_id|>"
+            log_message("User", message)
+        else:  # Assistant message
+            formatted_prompt += f"\n<|start_header_id|>assistant<|end_header_id|>\n{message}\n<|eot_id|>"
+            log_message("Bot", message)
+
+    # Append assistant token to generate new response
+    formatted_prompt += "\n<|start_header_id|>assistant<|end_header_id|>\n"
 
     native_request = {
         "prompt": formatted_prompt,
@@ -40,9 +63,15 @@ async def invoke_model(request: PromptRequest):
     }
 
     try:
-        # Invoke the model with the request
         response = client.invoke_model(modelId=model_id, body=json.dumps(native_request))
         model_response = json.loads(response["body"].read())
-        return {"generation": model_response["generation"]}
+        
+        bot_reply = model_response.get("generation", "")
+        log_message("Bot", bot_reply)  # Log bot's response
+
+        return {"generation": bot_reply}
+    
     except (ClientError, Exception) as e:
-        raise HTTPException(status_code=500, detail=f"Failed to invoke model: {str(e)}")
+        error_message = f"Failed to invoke model: {str(e)}"
+        log_message("System", error_message)  # Log errors
+        raise HTTPException(status_code=500, detail=error_message)
