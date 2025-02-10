@@ -40,9 +40,17 @@ def log_message(speaker: str, message: str):
 async def invoke_model(request: PromptRequest):
     model_id = "meta.llama3-3-70b-instruct-v1:0"
 
+    context = """You are a helpful assistant that helps shoppers 
+        in a grocery store with a variety of issues. Please refrain 
+        from discussing anything but grocery-store and product-related 
+        questions and topics."""
+
     # Parse the chat history from the frontend
     messages = request.prompt.strip().split("\n")  # Split by newlines
-    formatted_prompt = "<|begin_of_text|>"
+    formatted_prompt = """<|begin_of_text|>
+    <|start_header_id|>system<|end_header_id|>
+    {context}
+    <|eot_id|>"""
 
     # Alternate user and assistant messages properly
     for i, message in enumerate(messages):
