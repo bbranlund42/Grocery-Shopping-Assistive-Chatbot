@@ -7,57 +7,62 @@ const ShoppingCartCheckout = ({onUpdateCart}) => {
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState([]);
   const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  //this isProcessing state is used so we dont make double payments or some ish while the current payment is processing, so we use this as a barrier to prevent mistakes during payment
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  
-    const fetchCart = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get('http://localhost:4000/cart');
-
-        setCartItems(response.data.items || []);
-        setTotal(response.data.total || 0);
-
-        if (onUpdateCart) {
-          onUpdateCart(response.data.items || []);
-        }
-      } catch (error) {
-        console.error('Error fetching cart:', error);
-        setError('Error loading cart. Please try again.');
-        console.error('Error fetching cart:', error);
-      } finally {
-        setLoading(false);
+  const fetchCart = async () => {
+    if (!isProcessing) {
+      const response = await axios.get('http://localhost:4000/cart');
+      setCartItems(response.data.items || []);
+      setTotal(response.data.total || 0);
+      if (onUpdateCart) {
+        onUpdateCart(response.data.items || []);
       }
-
-
-    };
+    }
+  };
 
   useEffect(() => {
     fetchCart();
-
     const interval = setInterval(fetchCart, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [isProcessing]);
 
-  //this remove the items from the cart
+  const handlePayment = async () => {
+    setIsProcessing(true);
+    
+    // Update inventory
+    await axios.post('http://localhost:3500/updateInventory', {
+     //sets items to items in the cart, hence "cartItems" and send its to update inventory functions
+      items: cartItems
+    });
+
+    // this calls the clear endpoint to reset the users cart after they pay
+    await axios.post('http://localhost:4000/cart/clear');
+
+    // Update local state
+    setCartItems([]);
+    setTotal(0);
+    if (onUpdateCart) {
+      onUpdateCart([]);
+    }
+
+    alert('Payment successful! Thank you for your purchase.');
+    navigate('/');
+  };
+
   const removeFromCart = async (productId) => {
-    try {
+    if (!isProcessing) {
       const response = await axios.post('http://localhost:4000/cart/remove', { productId });
-      
       setCartItems(response.data.items);
       setTotal(response.data.total);
       if (onUpdateCart) {
         onUpdateCart(response.data.items);
       }
-    } catch (error) {
-      setError('Error removing item. Please try again.');
-      console.error('Error removing item:', error);
     }
   };
-  // update quantity
+
   const updateQuantity = async (productId, newQuantity) => {
-    try {
+    if (!isProcessing) {
       const response = await axios.post('http://localhost:4000/cart/update', {
         productId,
         quantity: newQuantity
@@ -68,8 +73,6 @@ const ShoppingCartCheckout = ({onUpdateCart}) => {
       if (onUpdateCart) {
         onUpdateCart(response.data.items);
       }
-    } catch (error) {
-      console.error('Error updating quantity:', error);
     }
   };
 
@@ -148,9 +151,10 @@ const ShoppingCartCheckout = ({onUpdateCart}) => {
           <div className="font-bold text-xl">Total: ${total.toFixed(2)}</div>
           <button 
             className="w-1/2 py-3 border-2 border-black rounded-lg text-center font-bold"
-            disabled={cartItems.length === 0}
+            disabled={cartItems.length === 0 || isProcessing}
+            onClick={handlePayment}
           >
-            PAY
+            {isProcessing ? 'Processing...' : 'PAY'}
           </button>
         </div>
       </div>
