@@ -58,7 +58,7 @@ def main():
             {response_text_2}
             <eot_id|>
             """
-            print(history)
+            #print(history)
         elif iter == 2:
             history = f"""
             <|start_header_id|>user<|end_header_id|>
@@ -74,7 +74,7 @@ def main():
             {response_text_2}
             <eot_id|>
             """
-            print(history)
+            #print(history)
         elif iter > 2:
             history = f"""
             <|start_header_id|>user<|end_header_id|>
@@ -96,7 +96,7 @@ def main():
             {response_text_2}
             <eot_id|>
             """
-            print(history)
+            #print(history)
 
 
         client = boto3.client("bedrock-runtime", region_name="us-east-2")
