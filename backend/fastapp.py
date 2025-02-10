@@ -47,7 +47,7 @@ async def invoke_model(request: PromptRequest):
 
     # Parse the chat history from the frontend
     messages = request.prompt.strip().split("\n")  # Split by newlines
-    formatted_prompt = """<|begin_of_text|>
+    formatted_prompt = f"""<|begin_of_text|>
     <|start_header_id|>system<|end_header_id|>
     {context}
     <|eot_id|>"""
