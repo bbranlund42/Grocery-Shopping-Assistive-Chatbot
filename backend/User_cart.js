@@ -192,6 +192,26 @@ app.post('/cart/update', async (req, res) => {
     }
 });
 
+//this is the function thats going to be called to clear the cart of the user after they pay
+app.post('/cart/clear', async (req, res) => {
+    try {
+      const userId = 'single_user_id';
+      const cart = await UserCart.findOne({ userId });
+      
+      if (!cart) {
+        return res.status(404).json({ message: 'Cart not found' });
+      }
+      
+      cart.items = [];
+      cart.total = 0;
+      await cart.save();
+      
+      res.json({ message: 'Cart cleared successfully', cart });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+  
 // Connect to MongoDB and start server
 connectToMongo();
 mongoose.connection.once('open', () => {

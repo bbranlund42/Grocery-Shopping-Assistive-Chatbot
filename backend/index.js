@@ -90,5 +90,36 @@ app.delete('/deleteFood', async (req, res) => {
     }
   });
 
+//this function is used to update the inventory of the database after a user clicks "pay" and finalizes their order
+//this function is going to match the product name then subtract from the quantity that is in the cart from the amount in the database
+app.post('/updateInventory', async (req, res) => {
+  try {
+      
+      const { items } = req.body;
+      console.log('Received items for inventory update:', items);
+      
+      //this iterates through each item in the cart and finds its respective place in the database based on off the product name and subtracts amount thats int cart from database
+      for (const item of items) {
+          // Find the food item by name 
+          const foodItem = await Food.findOne({ product_name: item.name });
+          console.log('Found food item:', foodItem);
+          
+          if (!foodItem) {
+              return res.status(404).json({ error: `Product ${item.name} not found` });
+          }
+          
+          // Subtract the cart quantity from the database quantity
+          foodItem.quantity = foodItem.quantity - item.quantity;
+          await foodItem.save();
+          console.log(`Updated quantity for ${foodItem.product_name}. New quantity: ${foodItem.quantity}`);
+      }
+      
+      res.json({ success: true, message: 'Inventory updated successfully' });
+  } catch (error) {
+      console.error('Error updating inventory:', error);
+      res.status(500).json({ error: error.message });
+  }
+});
+  
   
   app.listen(PORT);
