@@ -63,13 +63,13 @@ function JustChatting() {
     return (
       <div
         className={`message ${chat.role === "model" ? "bot" : "user"
-          }-message flex break-words whitespace-pre-line p-2 mt-2 mb-2 flex-col max-w-48 rounded-tl-xl rounded-tr-xl ${chat.role === "model"
-            ? "self-start bg-slate-300 rounded-br-xl rounded-bl-sm text-black"
-            : "self-end bg-blue-500 rounded-bl-xl rounded-br-sm text-white"
+          }-message flex break-words whitespace-pre-line p-2 mt-2 mb-2 flex-col max-w-90 rounded-tl-xl rounded-tr-xl ${chat.role === "model"
+            ? "self-start bg-slate-300 rounded-br-xl rounded-bl-sm text-black mr-20"
+            : "self-end bg-blue-500 rounded-bl-xl rounded-br-sm text-white ml-20"
           }`}
       >
-        {chat.role === "model" && <Bot />}
-        <p className="message-text">{chat.text}</p>
+        {chat.role === "model"}
+        <p className="message-text ml-3 mr-3">{chat.text}</p>
       </div>
     );
   };
@@ -112,7 +112,7 @@ function JustChatting() {
     return (
       <form
         action="#"
-        className="chat-form flex w-10/12 items-center justify-center border border-blue-300 rounded-full p-2 shadow-sm"
+        className="chat-form flex w-10/12 items-center justify-center border bg-slate-200 border-blue-300 rounded-full p-2 shadow-sm"
         onSubmit={handleFormSubmit}
       >
         <input
@@ -153,7 +153,7 @@ function JustChatting() {
   return (
       <div className="bg-white min-h-screen flex flex-col items-center">
         <Header />
-        <div className="container flex flex-col relative justify-center align-middle min-h-80 mt-24 w-10/12 bg-slate-200 rounded-2xl">
+        <div className="container flex flex-col relative justify-center align-middle min-h-80 mt-24 w-10/12 bg-white rounded-2xl">
         {isInView ? (
           <div className="flex flex-col items-center w-full p-8">
             <h1 className="text-2xl font-semibold mb-8">What can I help you with?</h1>
@@ -169,7 +169,6 @@ function JustChatting() {
           {/* Chatbot Body*/}
           <div ref={chatBodyRef} className="chat-body p-5 h-96 overflow-y-auto flex flex-col smooth-scroll">
             <div className="message bot-message p-4 break-words whitespace-pre-line flex mt-4 mb-4 bg-slate-300 max-w-48 rounded-tl-2xl rounded-tr-2xl rounded-bl-sm rounded-br-2xl">
-              <Bot />
               <p
                 className="message-text"
                 placeholder="Hello! Ask questions here!"
@@ -184,7 +183,7 @@ function JustChatting() {
           </div>
 
           {/* Chatbot Footer*/}
-          <div className="chat-footer fixed justify-center items-center bottom-0 w-full ms-1 mt-10 mb-5">
+          <div className="flex chat-footer justify-center items-center bottom-0 w-full mt-5 mb-5">
             <ChatForm
               chatHistory={chatHistory}
               setChatHistory={setChatHistory}
