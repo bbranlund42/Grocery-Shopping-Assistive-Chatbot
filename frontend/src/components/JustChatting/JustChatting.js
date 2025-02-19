@@ -119,11 +119,11 @@ function JustChatting() {
           ref={inputRef}
           type="text"
           placeholder={isInView ? "Ex. Add ingredients for applesace to my cart" : "Ask questions here..."}
-          className={`message-input ${isInView ? 'bg-white' : 'bg-slate-200'} w-full p-1.5 focus:outline-none`}
+          className={`message-input ${isInView ? 'bg-slate-200' : 'bg-slate-200'} w-full p-1.5 focus:outline-none`}
           required
         ></input>
         <button className="material-symbols-rounded bg-blue-500 h-10 w-10 rounded-2xl flex items-center justify-center">
-          <Send size={24} color={isInView ? 'black' : 'white'}/>
+          <Send size={24} color={isInView ? 'white' : 'white'}/>
         </button>
       </form>
     );
@@ -167,7 +167,7 @@ function JustChatting() {
         ) : (
         <>
           {/* Chatbot Body*/}
-          <div ref={chatBodyRef} className="chat-body p-5 h-96 overflow-y-auto flex flex-col smooth-scroll">
+          <div ref={chatBodyRef} className="chat-body p-3 h-96 overflow-y-auto flex flex-col smooth-scroll">
             <div className="message bot-message p-4 break-words whitespace-pre-line flex mt-4 mb-4 bg-slate-300 max-w-48 rounded-tl-2xl rounded-tr-2xl rounded-bl-sm rounded-br-2xl">
               <p
                 className="message-text"
