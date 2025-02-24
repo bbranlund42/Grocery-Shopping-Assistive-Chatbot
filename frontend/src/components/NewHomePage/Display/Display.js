@@ -69,7 +69,7 @@ export default function Display() {
             });
             setQuantity(1);
             handleCloseModal();
-            toast.success("Added to cart");
+            toast.success("Added " + food.product_name + " to cart");
             //const cartResponse = await axios.get("http://localhost:3000/cart");
             //setCart(cartResponse.data);
             //await fetchFoodItems(); // Refresh stock levels
