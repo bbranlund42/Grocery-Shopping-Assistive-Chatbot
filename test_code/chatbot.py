@@ -121,6 +121,35 @@ def main():
         }
         request = json.dumps(native_request)
 
+        prompt_data = """Write me a poem about apples"""
+        body = json.dumps({
+            "inputText": prompt_data,
+        })
+        model_id = 'amazon.titan-embed-text-v2:0'
+        accept = 'application/json' 
+        content_type = 'application/json'
+        response = client.invoke_model(
+            body=body, 
+            modelId=model_id, 
+            accept=accept, 
+            contentType=content_type
+        )
+        response_body = json.loads(response['body'].read())
+        embedding = response_body.get('embedding')
+        print(embedding)
+
+        """
+        test_prompt = "Test prompt for embedding."
+
+        try:
+            response_embed = client.invoke_model(modelId="amazon.titan-embed-text-v2:0", body=request)
+            response_body = json.loads(response_embed['body'].read())
+            embedding = response_body['embedding']
+            print(embedding)
+        except (ClientError, Exception) as e:
+            print(f"ERROR: Can't invoke '{model_id}'. Reason: {e}")
+            exit(1)
+        """
         try:
             response = client.invoke_model(modelId=model_id, body=request)
         except (ClientError, Exception) as e:
