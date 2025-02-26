@@ -3,6 +3,11 @@ import boto3
 import json
 from botocore.exceptions import ClientError
 
+from langchain_aws import BedrockEmbeddings
+from langchain_aws import ChatBedrock
+from langchain.chains import retrieval_qa
+from langchain.prompts import PromptTemplate
+
 def main():
     exit = 0
     iter = 0
@@ -121,21 +126,12 @@ def main():
         }
         request = json.dumps(native_request)
 
-        prompt_data = """Write me a poem about apples"""
-        body = json.dumps({
-            "inputText": prompt_data,
-        })
-        model_id = 'amazon.titan-embed-text-v2:0'
-        accept = 'application/json' 
-        content_type = 'application/json'
-        response = client.invoke_model(
-            body=body, 
-            modelId=model_id, 
-            accept=accept, 
-            contentType=content_type
+        embeddings = BedrockEmbeddings(
+            model_id='amazon.titan-embed-text-v2:0',
+            client=client
         )
-        response_body = json.loads(response['body'].read())
-        embedding = response_body.get('embedding')
+        text = "Write me a poem about apples."
+        embedding = embeddings.embed_query(text)
         print(embedding)
 
         """
