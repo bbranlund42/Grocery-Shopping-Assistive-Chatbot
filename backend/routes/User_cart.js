@@ -7,7 +7,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const PORT = 3000;
+const PORT = 4000;
 
 // Connect to MongoDB
 const connectToMongo = async () => {
@@ -120,7 +120,7 @@ app.post('/cart/add', async (req, res) => {
 //this is the directory for the remove feature
 app.post('/cart/remove', async (req, res) => {
     try {
-        const { productId, quantity } = req.body;
+        const { productId } = req.body;
         const userId = 'single_user_id';
 
         let cart = await UserCart.findOne({ userId });
@@ -136,24 +136,82 @@ app.post('/cart/remove', async (req, res) => {
             return res.status(404).json({ message: 'Product not in cart' });
         }
 
-        //removes and updates quantity of items in cart
-        if (cart.items[itemIndex].quantity <= quantity) {
-            cart.items.splice(itemIndex, 1);
-        } else {
-            cart.items[itemIndex].quantity -= quantity;
-        }
+        // Remove the item completely
+        cart.items.splice(itemIndex, 1);
 
-        // Recalculate total
-        cart.total = cart.items.reduce((total, item) => 
-            total + (item.price * item.quantity), 0);
+        // Recalculate total price
+        cart.total = cart.items.reduce((total, item) => total + (item.price * item.quantity), 0);
 
         await cart.save();
-        res.json(cart);
+        res.status(200).json(cart);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 });
 
+
+app.post('/cart/update', async (req, res) => {
+    try {
+        const { productId, quantity } = req.body;
+        const userId = 'single_user_id';
+
+        if (!productId || quantity === undefined) {
+            return res.status(400).json({ error: "Missing required fields: productId or quantity" });
+        }
+
+        // Find the user's cart
+        let cart = await UserCart.findOne({ userId });
+
+        if (!cart) {
+            return res.status(404).json({ error: "Cart not found" });
+        }
+
+        // Find the item in the cart
+        const itemIndex = cart.items.findIndex(item => item.productId === productId);
+
+        if (itemIndex === -1) {
+            return res.status(404).json({ error: "Product not in cart" });
+        }
+
+        if (quantity < 1) {
+            // Remove item if quantity is less than 1
+            cart.items.splice(itemIndex, 1);
+        } else {
+            // Update item quantity
+            cart.items[itemIndex].quantity = quantity;
+        }
+
+        // Recalculate total price
+        cart.total = cart.items.reduce((total, item) => total + (item.price * item.quantity), 0);
+
+        await cart.save();
+        res.status(200).json(cart);
+    } catch (error) {
+        console.error("Error updating cart:", error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+//this is the function thats going to be called to clear the cart of the user after they pay
+app.post('/cart/clear', async (req, res) => {
+    try {
+      const userId = 'single_user_id';
+      const cart = await UserCart.findOne({ userId });
+      
+      if (!cart) {
+        return res.status(404).json({ message: 'Cart not found' });
+      }
+      
+      cart.items = [];
+      cart.total = 0;
+      await cart.save();
+      
+      res.json({ message: 'Cart cleared successfully', cart });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+  
 // Connect to MongoDB and start server
 connectToMongo();
 mongoose.connection.once('open', () => {

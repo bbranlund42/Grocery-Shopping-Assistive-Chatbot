@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start:backend": "concurrently \"uvicorn RAGfastapp:app --host 0.0.0.0 --port 5001 --reload\" \"node server.js\" \"node User_cart.js\""
   },
   "keywords": [],
   "author": "",
@@ -14,6 +15,7 @@
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
     "express": "^4.21.2",
+    "i": "^0.3.7",
     "mongodb": "^6.12.0",
     "mongoose": "^8.9.5"
   }

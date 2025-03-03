@@ -1,0 +1,9 @@
+[{"_id":"67912cecc1738529e098b153","product_id":"P001","product_name":"Apple","category":"Fruit","quantity":0,"price":0.5,"description":"Fresh Red Apple","__v":0},
+{"_id":"67912e1732abc4d9c0d2c56e","product_id":"P002","product_name":"Banana","category":"Fruit","quantity":127,"price":0.3,"description":"Ripe Yellow Bananas","__v":0},
+{"_id":"6796cbeb020d610f851ae8a3","product_id":"C001","product_name":"M&M","category":"Candy","quantity":3,"price":1.5,"description":"Popular Candy","__v":0},
+{"_id":"6799ae3b3a7f2a078e944ebc","product_id":"P004","product_name":"bread","category":"Bakery","quantity":4,"price":3.99,"description":"fresh bread","__v":0},
+{"_id":"6799ae953a7f2a078e944ebf","product_id":"P005","product_name":"grape","category":"Fruit","quantity":200,"price":1.53,"description":"Purple grapes","__v":0},
+{"_id":"6799af8aebd1a0b08930e6b7","product_id":"P006","product_name":"carrot","category":"Vegetable","quantity":117,"price":1.45,"description":"Organic carrots, fresh and crunchy","__v":0},
+{"_id":"67a0528ae7e7e6591e49ce09","product_id":"P007","product_name":"Cheez=Itz","category":"Snack","quantity":0,"price":3,"description":"Cheesy Delight","__v":0},
+{"_id":"67a5a5aa59d794dbb5f6a930","__v":0},
+{"_id":"67aa63090e9622a0e46bb023","product_id":"P008","product_name":"Greek Yogurt","category":"Snack","quantity":100,"price":4,"description":"Vanilla Greeky Delight","__v":0}]
