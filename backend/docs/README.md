@@ -26,6 +26,11 @@ Before setting up the project, ensure you have the following installed:
      node -v
      npm -v
      ```
+3. **Concurrently** (for running multiple backend services in one command)
+   - Install it globally:
+     ```bash
+     npm install -g concurrently
+     ```
 
 ---
 
@@ -72,7 +77,7 @@ To start the FastAPI server and JavaScript backend services in a single command,
 
 ```json
 "scripts": {
-  "start:backend": "concurrently \"uvicorn fastapp:app --host 0.0.0.0 --port 5001 --reload\" \"node database.js\" \"node user_shopping_cart.js\" \"node third_script.js\""
+  "start:backend": "concurrently \"uvicorn RAGfastapp:app --host 0.0.0.0 --port 5001 --reload\" \"node server.js\" \"node User_cart.js\""
 }
 ```
 
@@ -81,9 +86,10 @@ Then, simply run:
 npm run start:backend
 ```
 
-This will start `uvicorn` and all `.js` services in parallel in one terminal.
+This will start `uvicorn` and all `.js` services in parallel in one terminal using `concurrently`.
 
 ---
+
 
 ### Run FastAPI Server Alone
 If you only need to run the FastAPI server, use:

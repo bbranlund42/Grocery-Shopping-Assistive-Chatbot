@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start:all": "concurrently \"node database.js\" \"node User_cart.js\" \"node index.js\""
+    "start:backend": "concurrently \"node routes/User_cart.js\" \"node routes/index.js\""
   },
   "keywords": [],
   "author": "",
