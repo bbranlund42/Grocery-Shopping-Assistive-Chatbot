@@ -27,9 +27,9 @@ app.add_middleware(
 client = boto3.client("bedrock-runtime", region_name="us-east-2")
 
 # MongoDB Connection
-mongo_client = MongoClient("mongodb+srv://dev:1234@cluster0.eimz9.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
-db = mongo_client["langchain_Grocery_db"]
-collection = db['Grocery_db']
+mongo_client = MongoClient("mongodb+srv://user:123@capgemini.zcb5v.mongodb.net/?retryWrites=true&w=majority&appName=CapGemini")
+db = mongo_client["test"]
+collection = db['foods']
 
 # Setup logging
 LOG_FILE = "chat_history.log"
