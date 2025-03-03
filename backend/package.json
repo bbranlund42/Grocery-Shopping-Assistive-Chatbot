@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start:backend": "concurrently \"node routes/User_cart.js\" \"node routes/index.js\""
+    "start:backend": "concurrently \"uvicorn RAGfastapp:app --host 0.0.0.0 --port 5001 --reload\" \"node server.js\" \"node User_cart.js\""
   },
   "keywords": [],
   "author": "",
