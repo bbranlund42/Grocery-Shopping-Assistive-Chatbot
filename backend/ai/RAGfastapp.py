@@ -65,12 +65,12 @@ def setup_rag_chain():
     vector_store = MongoDBAtlasVectorSearch(
         collection=collection,
         embedding=embedding_function,
-        index_name="vector_index",
+        index_name="food2", # update with the atlas Index
         embedding_key="embedding"
     )
     retriever = vector_store.as_retriever(
         search_type="similarity",
-        search_kwargs={"k": 3}
+        search_kwargs={"k": 6}
     )
     llm = get_llama_llm()
     prompt = PromptTemplate(
@@ -127,7 +127,7 @@ async def invoke_model(request: PromptRequest):
 
     native_request = {
         "prompt": formatted_prompt,
-        "max_gen_len": 128,
+        "max_gen_len": 512,
         "temperature": 0.5,
     }
 
