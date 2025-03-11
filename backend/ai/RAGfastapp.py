@@ -54,7 +54,7 @@ def get_llama_llm():
         client=client,
         model_id="meta.llama3-3-70b-instruct-v1:0",
         model_kwargs={
-            "temperature": 0.7,
+            "temperature": 0.3,
             "top_p": 0.9,
             "max_tokens": 512
         }
@@ -128,7 +128,7 @@ async def invoke_model(request: PromptRequest):
     native_request = {
         "prompt": formatted_prompt,
         "max_gen_len": 512,
-        "temperature": 0.5,
+        "temperature": 0.3,
     }
 
     try:

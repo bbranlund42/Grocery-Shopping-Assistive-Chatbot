@@ -77,7 +77,7 @@ To start the FastAPI server and JavaScript backend services in a single command,
 
 ```json
 "scripts": {
-  "start:backend": "concurrently \"uvicorn RAGfastapp:app --host 0.0.0.0 --port 5001 --reload\" \"node server.js\" \"node User_cart.js\""
+  "start:backend": "concurrently \"node index.js\" \"node User_cart.js\""
 }
 ```
 

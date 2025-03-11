@@ -54,11 +54,11 @@ def update_documents_with_text_field():
         for doc in docs:
             # Create text content from existing fields
             text_content = (f"Product ID: {doc.get('product_id', 'Unknown')}\n"
-                     f"Product Name: {doc.get('product_name', 'Unknown')}\n"
-                     f"Category: {doc.get('category', 'Unknown')}\n"
-                     f"Quantity: {doc.get('quantity', 0)}\n"
-                     f"Price: ${doc.get('price', 0)}\n"
-                     f"Description: {doc.get('description', 'No description')}\n")
+                            f"Product Name: {doc.get('product_name', 'Unknown')}\n"
+                            f"Category: {doc.get('category', 'Unknown')}\n"
+                            f"Quantity: {doc.get('quantity', 0)}\n"
+                            f"Price: ${doc.get('price', 0)}\n"
+                            f"Description: {doc.get('description', 'No description')}\n")
             
             # Update the document with a 'text' field
             collection.update_one(
