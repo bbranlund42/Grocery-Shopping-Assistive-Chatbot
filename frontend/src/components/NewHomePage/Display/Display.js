@@ -10,6 +10,8 @@ import vegetableImage from '../Display/Icons/vegetableImage.jpeg';
 import bakeryImage from '../Display/Icons/bakeryImage.jpg';
 import candyImage from '../Display/Icons/candyImage.jpg';
 import snackImage from '../Display/Icons/snackImage.jpg';
+import peanutImage from '../Display/Icons/PeytonsPeanutButter.png';
+import jellyImage from '../Display/Icons/JairJelly.png';
 
 
 
@@ -36,7 +38,7 @@ export default function Display() {
 
     const fetchFoodItems = async () => {
         try {
-            const response = await axios.get('http://localhost:3500/data');
+            const response = await axios.get('http://localhost:3500/findAllProducts');
             setFoodItems(response.data);
         } catch (error) {
             console.error('Error fetching food items:', error);
@@ -241,7 +243,7 @@ const Foodlist = ({ filteredProducts, setSelectedProduct, addToCart }) => {
     }
 
     useEffect(() => {
-        axios.get('http://localhost:3500/data')
+        axios.get('http://localhost:3500/findAllProducts')
             .then(response => {
                 setFoodItems(response.data);
                 console.log('Current foodItems:', response.data); // Use response.data instead
