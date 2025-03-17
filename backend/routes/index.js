@@ -46,7 +46,7 @@ const FoodSchema = new Schema({
 
 const Food = mongoose.model('Food', FoodSchema);
 
-app.get('/data', async (req, res) => {
+app.get('/findAllProducts', async (req, res) => {
     try {
       const items = await Food.find(); // Replace with your Mongoose model
       res.json(items);
