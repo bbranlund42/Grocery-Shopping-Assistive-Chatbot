@@ -1,0 +1,434 @@
+[
+  {
+    "_id": {
+      "$oid": "67c61e0b96ede37ee6532250"
+    },
+    "product_id": "P007",
+    "product_name": "Organic Bananas",
+    "category": "Produce",
+    "quantity": {
+      "$numberInt": "80"
+    },
+    "price": {
+      "$numberDouble": "1.2"
+    },
+    "description": "Fresh organic bananas",
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "67c61e0b96ede37ee6532251"
+    },
+    "product_id": "P008",
+    "product_name": "Almond Milk",
+    "category": "Dairy",
+    "quantity": {
+      "$numberInt": "50"
+    },
+    "price": {
+      "$numberDouble": "3.99"
+    },
+    "description": "Unsweetened almond milk",
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "67c61e0b96ede37ee6532252"
+    },
+    "product_id": "P009",
+    "product_name": "Cheddar Cheese",
+    "category": "Dairy",
+    "quantity": {
+      "$numberInt": "30"
+    },
+    "price": {
+      "$numberDouble": "5.5"
+    },
+    "description": "Aged cheddar cheese block",
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "67c61e0b96ede37ee6532253"
+    },
+    "product_id": "P010",
+    "product_name": "Whole Grain Pasta",
+    "category": "Grains",
+    "quantity": {
+      "$numberInt": "40"
+    },
+    "price": {
+      "$numberDouble": "2.75"
+    },
+    "description": "Healthy whole grain pasta",
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "67c61e0b96ede37ee6532254"
+    },
+    "product_id": "P011",
+    "product_name": "Greek Yogurt",
+    "category": "Dairy",
+    "quantity": {
+      "$numberInt": "35"
+    },
+    "price": {
+      "$numberDouble": "4.25"
+    },
+    "description": "Thick and creamy Greek yogurt",
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "67c61e0b96ede37ee6532255"
+    },
+    "product_id": "P012",
+    "product_name": "Frozen Blueberries",
+    "category": "Frozen Foods",
+    "quantity": {
+      "$numberInt": "25"
+    },
+    "price": {
+      "$numberDouble": "6.5"
+    },
+    "description": "Organic frozen blueberries",
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "67c61e0b96ede37ee6532256"
+    },
+    "product_id": "P013",
+    "product_name": "Ground Coffee",
+    "category": "Beverages",
+    "quantity": {
+      "$numberInt": "60"
+    },
+    "price": {
+      "$numberDouble": "9.99"
+    },
+    "description": "Rich and bold ground coffee",
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "67c61e0b96ede37ee6532257"
+    },
+    "product_id": "P014",
+    "product_name": "Orange Juice",
+    "category": "Beverages",
+    "quantity": {
+      "$numberInt": "45"
+    },
+    "price": {
+      "$numberDouble": "4.99"
+    },
+    "description": "100% pure orange juice",
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "67c61e0b96ede37ee6532258"
+    },
+    "product_id": "P015",
+    "product_name": "Organic Oatmeal",
+    "category": "Grains",
+    "quantity": {
+      "$numberInt": "70"
+    },
+    "price": {
+      "$numberDouble": "3.25"
+    },
+    "description": "Healthy organic oatmeal",
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "67c61e0b96ede37ee6532259"
+    },
+    "product_id": "P016",
+    "product_name": "Maple Syrup",
+    "category": "Condiments",
+    "quantity": {
+      "$numberInt": "20"
+    },
+    "price": {
+      "$numberDouble": "8.99"
+    },
+    "description": "Pure Canadian maple syrup",
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "67c61e0b96ede37ee6532260"
+    },
+    "product_id": "P017",
+    "product_name": "Brown Rice",
+    "category": "Grains",
+    "quantity": {
+      "$numberInt": "90"
+    },
+    "price": {
+      "$numberDouble": "4.25"
+    },
+    "description": "Healthy whole grain brown rice",
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "67c61e0b96ede37ee6532261"
+    },
+    "product_id": "P018",
+    "product_name": "Honey Roasted Peanuts",
+    "category": "Snacks",
+    "quantity": {
+      "$numberInt": "110"
+    },
+    "price": {
+      "$numberDouble": "2.99"
+    },
+    "description": "Crunchy honey roasted peanuts",
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "67c61e0b96ede37ee6532262"
+    },
+    "product_id": "P019",
+    "product_name": "Coconut Water",
+    "category": "Beverages",
+    "quantity": {
+      "$numberInt": "55"
+    },
+    "price": {
+      "$numberDouble": "3.5"
+    },
+    "description": "Refreshing coconut water",
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "67c61e0b96ede37ee6532263"
+    },
+    "product_id": "P020",
+    "product_name": "Spinach Leaves",
+    "category": "Produce",
+    "quantity": {
+      "$numberInt": "50"
+    },
+    "price": {
+      "$numberDouble": "2.0"
+    },
+    "description": "Fresh green spinach leaves",
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "67c61e0b96ede37ee6532265"
+    },
+    "product_id": "P021",
+    "product_name": "Eggs",
+    "category": "Dairy",
+    "quantity": {
+      "$numberInt": "60"
+    },
+    "price": {
+      "$numberDouble": "4.29"
+    },
+    "description": "Farm-fresh organic eggs.",
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "67c61e0b96ede37ee6532266"
+    },
+    "product_id": "P022",
+    "product_name": "Dates",
+    "category": "Produce",
+    "quantity": {
+      "$numberInt": "20"
+    },
+    "price": {
+      "$numberDouble": "5.99"
+    },
+    "description": "Sweet Medjool dates, perfect for snacking.",
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "67c61e0b96ede37ee6532267"
+    },
+    "product_id": "P023",
+    "product_name": "Pepper Jack Cheese",
+    "category": "Dairy",
+    "quantity": {
+      "$numberInt": "45"
+    },
+    "price": {
+      "$numberDouble": "7.99"
+    },
+    "description": "Aged cheddar cheese block.",
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "67c61e0b96ede37ee6532268"
+    },
+    "product_id": "P024",
+    "product_name": "Zucchini",
+    "category": "Produce",
+    "quantity": {
+      "$numberInt": "38"
+    },
+    "price": {
+      "$numberDouble": "1.79"
+    },
+    "description": "Fresh green zucchini, perfect for cooking.",
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "67c61e0b96ede37ee6532260"
+    },
+    "product_id": "P025",
+    "product_name": "Oats",
+    "category": "Grains",
+    "quantity": {
+      "$numberInt": "40"
+    },
+    "price": {
+      "$numberDouble": "4.99"
+    },
+    "description": "Organic rolled oats for a healthy breakfast.",
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "67c61e0b96ede37ee6532261"
+    },
+    "product_id": "P026",
+    "product_name": "Spinach",
+    "category": "Produce",
+    "quantity": {
+      "$numberInt": "35"
+    },
+    "price": {
+      "$numberDouble": "2.99"
+    },
+    "description": "Fresh organic spinach leaves.",
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "67c61e0b96ede37ee6532262"
+    },
+    "product_id": "P027",
+    "product_name": "Grape Jam",
+    "category": "Condiments",
+    "quantity": {
+      "$numberInt": "50"
+    },
+    "price": {
+      "$numberDouble": "3.49"
+    },
+    "description": "Homemade strawberry jam.",
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "67c61e0b96ede37ee6532263"
+    },
+    "product_id": "P028",
+    "product_name": "Blueberry Muffins",
+    "category": "Bakery",
+    "quantity": {
+      "$numberInt": "25"
+    },
+    "price": {
+      "$numberDouble": "5.99"
+    },
+    "description": "Freshly baked blueberry muffins.",
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "67c61e0b96ede37ee6532264"
+    },
+    "product_id": "P029",
+    "product_name": "Bee's Honey",
+    "category": "Condiments",
+    "quantity": {
+      "$numberInt": "30"
+    },
+    "price": {
+      "$numberDouble": "6.49"
+    },
+    "description": "Raw organic honey from local farms.",
+    "__v": {
+      "$numberInt": "0"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "67c61e0b96ede37ee6532249"
+    },
+    "product_id": "P030",
+    "product_name": "Crispy Chips",
+    "category": "Snack",
+    "quantity": {
+      "$numberInt": "120"
+    },
+    "price": {
+      "$numberDouble": "2.5"
+    },
+    "description": "Crunchy and salty potato chips",
+    "__v": {
+      "$numberInt": "0"
+    }
+  }
+]

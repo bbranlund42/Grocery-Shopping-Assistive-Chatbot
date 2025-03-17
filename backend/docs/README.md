@@ -49,6 +49,11 @@ fastapi
 uvicorn
 boto3
 pydantic
+botocore
+pymongo
+langchain
+langchain-community
+langchain-aws
 ```
 
 #### JavaScript Dependencies:
