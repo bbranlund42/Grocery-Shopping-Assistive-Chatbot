@@ -21,3 +21,6 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+
+frontend\src\components\NewHomePage\Home\Home2.js
