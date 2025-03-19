@@ -8,7 +8,7 @@ export default function HomePage() {
     <div className="relative h-screen w-full">
       {/* Background Image */}
       <div 
-        className="absolute inset-0 w-full h-full"
+        className="absolute top-0 w-full h-1/2"
         style={{
           backgroundImage: 'url("./FoodAI.png")',
           backgroundSize: 'cover',
@@ -21,8 +21,8 @@ export default function HomePage() {
       </div>
 
       {/* Content Container */}
-      <div className="relative h-full flex flex-col items-center justify-center text-center px-4">
-        <h1 className="text-6xl font-bold text-white mb-4">
+      <div className="relative h-1/2 flex flex-col items-center justify-center text-center px-4">
+        <h1 className="text-4xl font-bold text-white mb-2">
           Make Shopping Easy
         </h1>
         <p className="text-2xl text-gray-200 mb-8">
