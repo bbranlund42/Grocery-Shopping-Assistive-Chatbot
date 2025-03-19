@@ -62,7 +62,7 @@ def get_llama_llm():
         client=client,
         model_id="meta.llama3-3-70b-instruct-v1:0",
         model_kwargs={
-            "temperature": 0.1,
+            "temperature": 0.2,
             "top_p": 0.7,
             "max_tokens": 512
         }
@@ -94,6 +94,8 @@ GUIDELINES:
 5. For inventory questions, provide current stock levels when available
 6. For product location questions, specify aisle and section when available
 7. Answer concisely but completely
+8. When displaying items, ONLY display the product_name, quantity. When asked to display inventory data, present the information in a structured JSON format: key="products" product_name, quantity
+9. Add your response to the question in the JSON aswell, make the key="answer"
 
 - DO NOT add additional responses, unrelated dialogue, or make up user queries
 - If a product is unavailable, explicitly state that rather than assuming stock
@@ -205,3 +207,8 @@ async def invoke_model(request: PromptRequest):
     #     error_message = f"Failed to invoke model: {str(e)}"
     #     log_message("System", error_message)
     #     raise HTTPException(status_code=500, detail=error_message)
+    
+    
+    
+    #add a !@ before the first item and between all of the next items to delimit the items, display all the information from the database.
+    #9. Display the JSON at the very end of the message, add !@# between your response and the JSON.
