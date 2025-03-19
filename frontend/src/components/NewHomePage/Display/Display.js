@@ -145,7 +145,10 @@ export default function Display() {
                         <p className="text-lg font-medium mt-4">
                             ${selectedProduct.price.toFixed(2)}
                         </p>
-                        <h2 className="text-xl mb-4">{selectedProduct.description}</h2>
+                        <h2 className="text-xl mb-2">{selectedProduct.description}</h2>
+                        <p className="text-md font-medium">
+                            Aisle: {selectedProduct.location}
+                        </p>
 
                         <div className="mt-6 flex items-center gap-4">
                             <span className="text-gray-600">Quantity:</span>
@@ -188,7 +191,7 @@ export default function Display() {
                 pauseOnHover
                 theme="light"
             />
-        </div>
+        </div>  
     );
 };
 //newly implemented code
@@ -278,6 +281,12 @@ const Foodlist = ({ filteredProducts, setSelectedProduct, addToCart }) => {
                                     <p className={changeText(food.quantity)}>{test(food.quantity)}
                                     </p>
                                 </div>
+                            </div>
+
+                            <div className="aisle-location">
+                                <p className="text-gray-600 text-sm mt-1">
+                                    Aisle: {food.location}
+                                </p>
                             </div>
 
                             <div className="text-xl">
