@@ -31,10 +31,15 @@ mongo_client = MongoClient("mongodb+srv://user:123@capgemini.zcb5v.mongodb.net/?
 db = mongo_client["test"]
 collection = db['foods']
 
-# Setup logging
+# added for chat history
+chat_collection = db["chat_history"]  # New collection for chat logs
+
+
+# Setup local logging
 LOG_FILE = "chat_history.log"
 LOG_FILE2 = "langchain_history.log"
 
+# logs the chat history to local copy
 def log_message(speaker: str, message: str):
     """Logs chat history with timestamps."""
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -42,12 +47,32 @@ def log_message(speaker: str, message: str):
     with open(LOG_FILE, "a", encoding="utf-8") as file:
         file.write(log_entry)
 
-def log_langchain_response(speaker: str, message: str):
-    """Logs langchain history with timestamps."""
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    log_entry = f"[{timestamp}] {speaker}: {message}\n"
-    with open(LOG_FILE2, "a", encoding="utf-8") as file:
-        file.write(log_entry)
+# depricated function for returning what langchain returns
+# def log_langchain_response(speaker: str, message: str):
+#     """Logs langchain history with timestamps."""
+#     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+#     log_entry = f"[{timestamp}] {speaker}: {message}\n"
+#     with open(LOG_FILE2, "a", encoding="utf-8") as file:
+#         file.write(log_entry)
+
+# this is used to log the chat history to the database
+def log_chat_to_db(user_id, user_message, bot_response):
+    timestamp = datetime.now()
+    chat_collection.update_one(
+        {"user_id": user_id},
+        {
+            "$push": {
+                "messages": {
+                    "$each": [
+                        {"role": "user", "text": user_message, "timestamp": timestamp},
+                        {"role": "model", "text": bot_response, "timestamp": timestamp}
+                    ]
+                }
+            }
+        },
+        upsert=True  # Creates a new document if user_id doesn't exist
+    )
+
 
 # Configure LangChain RAG
 
@@ -124,21 +149,36 @@ qa_chain = setup_rag_chain()
 class PromptRequest(BaseModel):
     prompt: str
 
+# used to store the chat history in the database
+@app.get("/chat-history/{user_id}")
+async def get_chat_history(user_id: str):
+    chat = chat_collection.find_one({"user_id": user_id})
+    if not chat:
+        raise HTTPException(status_code=404, detail="No chat history found.")
+    return {"messages": chat["messages"]}
+
 @app.post("/invoke-model")
 async def invoke_model(request: PromptRequest):
     user_query = request.prompt.strip()
     log_message("User", user_query)
+    user_id = "1111"
     
     # Retrieve relevant documents from the vector database
     try:
         response = qa_chain.invoke({"query": user_query})
         retrieved_info = response["result"]
-        log_langchain_response("langchain",retrieved_info)
+        # log_langchain_response("langchain",retrieved_info)
         log_message("Bot", retrieved_info)
+        
+        # used to log th echat history in the database
+        log_chat_to_db(user_id, user_query, retrieved_info)
+        
         return {"generation": retrieved_info}
     except Exception as e:
         retrieved_info = ""  # Fallback if retrieval fails
         log_message("System", f"Vector DB retrieval error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error processing request")
+    
     
     # context = f"""You are a helpful assistant that assists shoppers in a grocery store.  
     #         You provide information about products, availability, and pricing while refraining  
