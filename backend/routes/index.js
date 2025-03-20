@@ -41,6 +41,9 @@ const FoodSchema = new Schema({
     }, 
     description: {
         type: String
+    },
+    location: {
+        type: String
     }
 }); 
 
@@ -57,8 +60,8 @@ app.get('/findAllProducts', async (req, res) => {
 
 app.post('/addNewFood', async (req,res) => {
     try{
-        const {product_id, product_name, category, quantity, price, description} = req.query;
-        const newFood = new Food({product_id, product_name, category, quantity, price, description});
+        const {product_id, product_name, category, quantity, price, description, location} = req.query;
+        const newFood = new Food({product_id, product_name, category, quantity, price, description, location});
 
         const savedFood = await newFood.save();
         res.status(201).json({message:"Added Successfully",data: savedFood});

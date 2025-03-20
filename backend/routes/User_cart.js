@@ -92,7 +92,7 @@ app.post('/cart/add', async (req, res) => {
 
         
         if (existingItemIndex > -1) //if the prudct exists then increase the quanitity
-          {
+            {
             cart.items[existingItemIndex].quantity += quantity;
         } else {
             //if no products exists, then PUSH it to the cart

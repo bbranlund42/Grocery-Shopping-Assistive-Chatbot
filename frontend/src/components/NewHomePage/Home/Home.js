@@ -1,14 +1,20 @@
-import React from 'react'
+import React,{useState} from 'react'
 import Display from '../Display/Display';
-import { useNavigate } from "react-router-dom";
+//import { useNavigate } from "react-router-dom";
+import PopupChatbot from './PopupChat';
 
 export default function HomePage() {
-    const navigate = useNavigate();
+    //const navigate = useNavigate();
+    const [showChatbot, setShowChatbot] = useState(false);
+    const handleStartChatting = () => {
+      setShowChatbot(true);
+    };
+
   return (
     <div className="relative h-screen w-full">
       {/* Background Image */}
       <div 
-        className="absolute inset-0 w-full h-full"
+        className="absolute top-0 w-full h-1/2"
         style={{
           backgroundImage: 'url("./FoodAI.png")',
           backgroundSize: 'cover',
@@ -21,8 +27,8 @@ export default function HomePage() {
       </div>
 
       {/* Content Container */}
-      <div className="relative h-full flex flex-col items-center justify-center text-center px-4">
-        <h1 className="text-6xl font-bold text-white mb-4">
+      <div className="relative h-1/2 flex flex-col items-center justify-center text-center px-4">
+        <h1 className="text-4xl font-bold text-white mb-2">
           Make Shopping Easy
         </h1>
         <p className="text-2xl text-gray-200 mb-8">
@@ -33,11 +39,17 @@ export default function HomePage() {
         <div className="flex gap-4">
           <button 
             className="px-6 py-2 bg-white text-gray-900 rounded-md hover:bg-gray-100 transition-colors duration-300"
-            onClick={() => navigate("/JustChatting")} >
+            onClick={handleStartChatting} >
             Start Chatting
           </button>
         </div>
       </div>
+
+      {/* Animated Chatbot */}
+      <PopupChatbot
+        isTriggered={showChatbot}
+        onClose={() => setShowChatbot(false)}
+        />
 
       <Display />
     </div>
