@@ -33,3 +33,4 @@ __pycache__/
 
 # Chat Log
 chat_history.log
+frontend\src\components\NewHomePage\Home\Home2.js

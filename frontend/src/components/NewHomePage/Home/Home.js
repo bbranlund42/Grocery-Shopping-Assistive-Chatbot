@@ -1,9 +1,15 @@
-import React from 'react'
+import React,{useState} from 'react'
 import Display from '../Display/Display';
-import { useNavigate } from "react-router-dom";
+//import { useNavigate } from "react-router-dom";
+import PopupChatbot from './PopupChat';
 
 export default function HomePage() {
-    const navigate = useNavigate();
+    //const navigate = useNavigate();
+    const [showChatbot, setShowChatbot] = useState(false);
+    const handleStartChatting = () => {
+      setShowChatbot(true);
+    };
+
   return (
     <div className="relative h-screen w-full">
       {/* Background Image */}
@@ -33,11 +39,17 @@ export default function HomePage() {
         <div className="flex gap-4">
           <button 
             className="px-6 py-2 bg-white text-gray-900 rounded-md hover:bg-gray-100 transition-colors duration-300"
-            onClick={() => navigate("/JustChatting")} >
+            onClick={handleStartChatting} >
             Start Chatting
           </button>
         </div>
       </div>
+
+      {/* Animated Chatbot */}
+      <PopupChatbot
+        isTriggered={showChatbot}
+        onClose={() => setShowChatbot(false)}
+        />
 
       <Display />
     </div>

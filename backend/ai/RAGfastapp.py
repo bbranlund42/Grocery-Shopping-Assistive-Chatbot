@@ -31,10 +31,15 @@ mongo_client = MongoClient("mongodb+srv://user:123@capgemini.zcb5v.mongodb.net/?
 db = mongo_client["test"]
 collection = db['foods']
 
-# Setup logging
+# added for chat history
+chat_collection = db["chat_history"]  # New collection for chat logs
+
+
+# Setup local logging
 LOG_FILE = "chat_history.log"
 LOG_FILE2 = "langchain_history.log"
 
+# logs the chat history to local copy
 def log_message(speaker: str, message: str):
     """Logs chat history with timestamps."""
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -42,12 +47,32 @@ def log_message(speaker: str, message: str):
     with open(LOG_FILE, "a", encoding="utf-8") as file:
         file.write(log_entry)
 
-def log_langchain_response(speaker: str, message: str):
-    """Logs langchain history with timestamps."""
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    log_entry = f"[{timestamp}] {speaker}: {message}\n"
-    with open(LOG_FILE2, "a", encoding="utf-8") as file:
-        file.write(log_entry)
+# depricated function for returning what langchain returns
+# def log_langchain_response(speaker: str, message: str):
+#     """Logs langchain history with timestamps."""
+#     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+#     log_entry = f"[{timestamp}] {speaker}: {message}\n"
+#     with open(LOG_FILE2, "a", encoding="utf-8") as file:
+#         file.write(log_entry)
+
+# this is used to log the chat history to the database
+def log_chat_to_db(user_id, user_message, bot_response):
+    timestamp = datetime.now()
+    chat_collection.update_one(
+        {"user_id": user_id},
+        {
+            "$push": {
+                "messages": {
+                    "$each": [
+                        {"role": "user", "text": user_message, "timestamp": timestamp},
+                        {"role": "model", "text": bot_response, "timestamp": timestamp}
+                    ]
+                }
+            }
+        },
+        upsert=True  # Creates a new document if user_id doesn't exist
+    )
+
 
 # Configure LangChain RAG
 
@@ -62,7 +87,7 @@ def get_llama_llm():
         client=client,
         model_id="meta.llama3-3-70b-instruct-v1:0",
         model_kwargs={
-            "temperature": 0.1,
+            "temperature": 0.2,
             "top_p": 0.7,
             "max_tokens": 512
         }
@@ -94,6 +119,8 @@ GUIDELINES:
 5. For inventory questions, provide current stock levels when available
 6. For product location questions, specify aisle and section when available
 7. Answer concisely but completely
+8. When displaying items, ONLY display the product_name, quantity. When asked to display inventory data, present the information in a structured JSON format: key="products" product_name, quantity
+9. Add your response to the question in the JSON aswell, make the key="answer"
 
 - DO NOT add additional responses, unrelated dialogue, or make up user queries
 - If a product is unavailable, explicitly state that rather than assuming stock
@@ -122,21 +149,36 @@ qa_chain = setup_rag_chain()
 class PromptRequest(BaseModel):
     prompt: str
 
+# used to store the chat history in the database
+@app.get("/chat-history/{user_id}")
+async def get_chat_history(user_id: str):
+    chat = chat_collection.find_one({"user_id": user_id})
+    if not chat:
+        raise HTTPException(status_code=404, detail="No chat history found.")
+    return {"messages": chat["messages"]}
+
 @app.post("/invoke-model")
 async def invoke_model(request: PromptRequest):
     user_query = request.prompt.strip()
     log_message("User", user_query)
+    user_id = "1111"
     
     # Retrieve relevant documents from the vector database
     try:
         response = qa_chain.invoke({"query": user_query})
         retrieved_info = response["result"]
-        log_langchain_response("langchain",retrieved_info)
+        # log_langchain_response("langchain",retrieved_info)
         log_message("Bot", retrieved_info)
+        
+        # used to log th echat history in the database
+        log_chat_to_db(user_id, user_query, retrieved_info)
+        
         return {"generation": retrieved_info}
     except Exception as e:
         retrieved_info = ""  # Fallback if retrieval fails
         log_message("System", f"Vector DB retrieval error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error processing request")
+    
     
     # context = f"""You are a helpful assistant that assists shoppers in a grocery store.  
     #         You provide information about products, availability, and pricing while refraining  
@@ -205,3 +247,8 @@ async def invoke_model(request: PromptRequest):
     #     error_message = f"Failed to invoke model: {str(e)}"
     #     log_message("System", error_message)
     #     raise HTTPException(status_code=500, detail=error_message)
+    
+    
+    
+    #add a !@ before the first item and between all of the next items to delimit the items, display all the information from the database.
+    #9. Display the JSON at the very end of the message, add !@# between your response and the JSON.

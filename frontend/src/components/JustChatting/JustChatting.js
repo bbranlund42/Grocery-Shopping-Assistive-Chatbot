@@ -31,7 +31,7 @@ function JustChatting() {
     try {
       // Convert history to just the text content
       const historyString = history.map(({ text }) => text).join('\n');
-      console.log(historyString);
+      // console.log(historyString);
 
       // Use Axios to make the POST request to localhost
       const response = await axios.post("http://localhost:5001/invoke-model", {
@@ -40,11 +40,21 @@ function JustChatting() {
 
       // Getting the API response and assigning it to apiResponse
       const apiResponse = response.data.generation;
+      
+      // These are for Debugging
+      // console.log(response)
+      // console.log(apiResponse);
+      // console.log(typeof apiResponse);
 
-      //console.log(apiResponse);
+      const responseJSON = typeof apiResponse === "string" ? JSON.parse(apiResponse) : apiResponse;
 
+      // Debugging statement
+      // console.log(responseJSON);
+
+      // set table
       // Update the history with the bot's response
-      updateHistory(apiResponse);
+      updateHistory(responseJSON.answer);
+
 
       // Assuming the response contains the bot's generation
       return response.data.generation;

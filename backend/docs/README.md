@@ -91,7 +91,7 @@ Then, simply run:
 npm run start:backend
 ```
 
-### Or to start all services use the following script
+### Or to start all services use the following script, YOU HAVE TO BE IN BACKEND DIRECTORY
 ```json
 "scripts": {
   "start:all": "concurrently \"cd routes && node index.js\" \"cd routes && node User_cart.js\" \"cd ai && uvicorn RAGfastapp:app --host 0.0.0.0 --port 5001 --reload\" \"cd ../frontend && npm start\""
