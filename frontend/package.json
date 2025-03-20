@@ -4,6 +4,9 @@
   "private": true,
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.734.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/material": "^6.4.8",
     "autoprefixer": "^10.4.20",
     "aws-sdk": "^2.1692.0",
     "axios": "^1.7.9",

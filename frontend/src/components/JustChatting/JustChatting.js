@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { House, Pin, Send, Bot } from "lucide-react";
 import axios from "axios";
 import Header from "../NewHomePage/Header/Header";
+import MyTableforSuggest from "../JustChatting/TableforChat";
 
 function JustChatting() {
   const [chatHistory, setChatHistory] = useState([]);
@@ -13,7 +14,7 @@ function JustChatting() {
   }
   const [prompt, setPrompt] = useState("");
   const [response, setResponse] = useState("");
-  const [isInView,setIsInView] = useState(true);
+  const [isInView, setIsInView] = useState(true);
 
   const generateBotResponse = async (history) => {
     // Helper Function to update chat history
@@ -151,9 +152,9 @@ function JustChatting() {
   }, [chatHistory]);
 
   return (
-      <div className="bg-white min-h-screen flex flex-col items-center">
-        <Header />
-        <div className="container flex flex-col relative justify-center align-middle min-h-80 mt-24 w-10/12 bg-white rounded-2xl">
+    <div className="bg-white min-h-screen flex flex-col items-center">
+      <Header />
+      <div className="container flex flex-col relative justify-center align-middle min-h-80 mt-24 w-10/12 bg-white rounded-2xl">
         {isInView ? (
           <div className="flex flex-col items-center w-full p-8">
             <h1 className="text-2xl font-semibold mb-8">What can I help you with?</h1>
@@ -163,38 +164,40 @@ function JustChatting() {
               generateBotResponse={generateBotResponse}
               setIsInView={setIsInView}
             />
-        </div>
+          </div>
         ) : (
-        <>
-          {/* Chatbot Body*/}
-          <div ref={chatBodyRef} className="chat-body p-3 h-96 overflow-y-auto flex flex-col smooth-scroll">
-            <div className="message bot-message p-4 break-words whitespace-pre-line flex mt-4 mb-4 bg-slate-300 max-w-48 rounded-tl-2xl rounded-tr-2xl rounded-bl-sm rounded-br-2xl">
-              <p
-                className="message-text"
-                placeholder="Hello! Ask questions here!"
-              >
-                Hello, How can I assist you today?
-              </p>
+          <>
+            {/* Chatbot Body*/}
+            <div ref={chatBodyRef} className="chat-body p-3 h-96 overflow-y-auto flex flex-col smooth-scroll">
+              <div className="message bot-message p-4 break-words whitespace-pre-line flex mt-4 mb-4 bg-slate-300 max-w-48 rounded-tl-2xl rounded-tr-2xl rounded-bl-sm rounded-br-2xl">
+                <p
+                  className="message-text"
+                  placeholder="Hello! Ask questions here!"
+                >
+                  Hello, How can I assist you today?
+                </p>
+              </div>
+              {/*Render the chat history dynamically*/}
+              {chatHistory.map((chat, index) => (
+                <ChatMessage key={index} chat={chat} />
+              ))}
             </div>
-            {/*Render the chat history dynamically*/}
-            {chatHistory.map((chat, index) => (
-              <ChatMessage key={index} chat={chat} />
-            ))}
-          </div>
 
-          {/* Chatbot Footer*/}
-          <div className="flex chat-footer justify-center items-center bottom-0 w-full mt-5 mb-5">
-            <ChatForm
-              chatHistory={chatHistory}
-              setChatHistory={setChatHistory}
-              generateBotResponse={generateBotResponse}
-              setIsInView={setIsInView}
-            />
-          </div>
+            {/* Chatbot Footer*/}
+            <div className="flex chat-footer justify-center items-center bottom-0 w-full mt-5 mb-5">
+              <ChatForm
+                chatHistory={chatHistory}
+                setChatHistory={setChatHistory}
+                generateBotResponse={generateBotResponse}
+                setIsInView={setIsInView}
+              />
+            </div>
+            <MyTableforSuggest/>
           </>
-          )}
-        </div>
+        )}
       </div>
+    </div>
+
   );
 }
 
