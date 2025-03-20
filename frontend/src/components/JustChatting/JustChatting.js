@@ -39,14 +39,16 @@ function JustChatting() {
 
       // Getting the API response and assigning it to apiResponse
       const apiResponse = response.data.generation;
+      
+      // These are for Debugging
       // console.log(response)
-
-      console.log(apiResponse);
-      console.log(typeof apiResponse);
+      // console.log(apiResponse);
+      // console.log(typeof apiResponse);
 
       const responseJSON = typeof apiResponse === "string" ? JSON.parse(apiResponse) : apiResponse;
 
-      console.log(responseJSON);
+      // Debugging statement
+      // console.log(responseJSON);
 
       // set table
       // Update the history with the bot's response
