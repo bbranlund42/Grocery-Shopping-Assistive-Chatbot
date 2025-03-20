@@ -1,3 +1,5 @@
+
+{/* Noah Herron: This File was not supposed to be added, it was a temporary file i was testing new stuff on */}
 import React, { useState } from 'react';
 import Display from '../Display/Display';
 import { useNavigate } from "react-router-dom";
