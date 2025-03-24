@@ -76,7 +76,7 @@ app.post('/addNewFood', async (req,res) => {
           {$set: {'embedding': embedding} }, 
           {strict: false}
           ); 
-          const text = (`Product ID: ${item['product_id']}
+          const text = (`Product ID: ${newFood['product_id']}
             Product Name: ${newFood['product_name']}
             Category: ${newFood['category']}
             Quantity: ${newFood['quantity']}
