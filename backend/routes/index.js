@@ -7,12 +7,19 @@ import mongoose from 'mongoose';
 import express  from 'express'; 
 import cors from 'cors';
 const PORT = 3500; 
+import { BedrockEmbeddings } from "@langchain/aws";
 
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
+// embedding model 
+const embedding_model = new BedrockEmbeddings({
+  model: 'amazon.titan-embed-text-v2:0',
+  credentials_profile_name: 'default'
+}); 
+
 
 const connectToMongo = async () => {
     await mongoose.connect(database, {
@@ -62,6 +69,25 @@ app.post('/addNewFood', async (req,res) => {
     try{
         const {product_id, product_name, category, quantity, price, description, location} = req.query;
         const newFood = new Food({product_id, product_name, category, quantity, price, description, location});
+
+        const embedding = await embedding_model.embedQuery(newFood['product_name']); 
+        const res = await Food.updateOne(
+          {'_id': newFood['_id']}, 
+          {$set: {'embedding': embedding} }, 
+          {strict: false}
+          ); 
+          const text = (`Product ID: ${item['product_id']}
+            Product Name: ${newFood['product_name']}
+            Category: ${newFood['category']}
+            Quantity: ${newFood['quantity']}
+            Price: ${newFood['price']}
+            Description: ${newFood['description']}`
+        ); 
+        const res2 = await Food.updateOne(
+            {'_id': newFood['_id']}, 
+            {$set: {'text': text}}, 
+            {strict: false}
+        ); 
 
         const savedFood = await newFood.save();
         res.status(201).json({message:"Added Successfully",data: savedFood});
