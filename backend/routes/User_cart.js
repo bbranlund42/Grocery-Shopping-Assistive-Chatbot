@@ -117,6 +117,53 @@ app.post('/cart/add', async (req, res) => {
     }
 });
 
+app.post('/add/cart/table', async (req, res) => {
+    try {
+      //extract productID and quanitity form the request body
+        const { productId, quantity } = req.body;
+        const userId = 'single_user_id'; //Hardcoded userID, this is just for testing with one user
+
+        //find user cart in database based on UserID
+        let cart = await UserCart.findOne({ userId });
+
+        //if cart doesnt exist, create a new cart
+        if (!cart) {
+            cart = new UserCart({ userId, 
+              items: [] //initialize with no items 
+              ,total: 0 //initialize price as 0
+            });
+        }
+
+        //check if the product already exists in the cart
+        const existingItemIndex = cart.items.findIndex(item => item.productId === productId);
+
+        
+        if (existingItemIndex > -1) //if the prudct exists then increase the quanitity
+            {
+            cart.items[existingItemIndex].quantity += quantity;
+        } else {
+            //if no products exists, then PUSH it to the cart
+            cart.items.push({
+                productId, //stores the product ID
+                name: req.body.name, //stores teh product name
+                quantity, //stores quanitity
+                price: req.body.price //stores price
+            });
+        }
+
+        // Recalculates the total price of the cart
+        cart.total = cart.items.reduce((total, item) => 
+            total + (item.price * item.quantity), 0);
+
+        //saves teh updated cart
+        await cart.save();
+        //responds with the updated cart data
+        res.json(cart);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 //this is the directory for the remove feature
 app.post('/cart/remove', async (req, res) => {
     try {

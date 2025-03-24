@@ -7,6 +7,8 @@ import MyTableforSuggest from "../JustChatting/TableforChat";
 
 function JustChatting() {
   const [chatHistory, setChatHistory] = useState([]);
+  const [productData, setProductData] = useState([]);
+  const [tableVersion, setTableVersion] = useState(0);
   const navigate = useNavigate();
 
   {
@@ -40,19 +42,23 @@ function JustChatting() {
 
       // Getting the API response and assigning it to apiResponse
       const apiResponse = response.data.generation;
+
+      setTableVersion(prev => prev + 1);
       
       // These are for Debugging
       // console.log(response)
-      // console.log(apiResponse);
+      //console.log(apiResponse);
       // console.log(typeof apiResponse);
 
       const responseJSON = typeof apiResponse === "string" ? JSON.parse(apiResponse) : apiResponse;
 
       // Debugging statement
-      // console.log(responseJSON);
+      console.log(responseJSON);
 
       // set table
       // Update the history with the bot's response
+
+      setProductData(responseJSON.products);
       updateHistory(responseJSON.answer);
 
 
@@ -202,7 +208,9 @@ function JustChatting() {
                 setIsInView={setIsInView}
               />
             </div>
-            <MyTableforSuggest/>
+            <MyTableforSuggest 
+            key={`product-table-${tableVersion}`}
+            products={productData}/>
           </>
         )}
       </div>
