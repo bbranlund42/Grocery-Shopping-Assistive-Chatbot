@@ -11,6 +11,7 @@ export default function Header() {
     { label: "Just Chatting", href: "/JustChatting" },
     { label: "Cart", href: "/cart" },
     { label: "Contact", href: "#" },
+    { label: "Order History", href: "/Order_History"}
   ];
 
   return (
