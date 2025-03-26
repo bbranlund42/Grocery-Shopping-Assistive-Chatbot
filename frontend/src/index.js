@@ -30,7 +30,7 @@ root.render(
         <Route path="CapMap" element={<CapMap />} />
         <Route path="NavigatePage" element={<NavigatePage />} />
         <Route path="JustChatting" element={<JustChatting />} />
-        <Route path= "Order History" element={<Order_History/>}/>
+        <Route path= "Order_History" element={<Order_History/>}/>
       </Routes>
     </BrowserRouter>
   </React.StrictMode>
