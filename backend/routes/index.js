@@ -81,7 +81,8 @@ app.post('/addNewFood', async (req,res) => {
             Category: ${newFood['category']}
             Quantity: ${newFood['quantity']}
             Price: ${newFood['price']}
-            Description: ${newFood['description']}`
+            Description: ${newFood['description']}
+            Location: ${newFood['location']}`
         ); 
         const res2 = await Food.updateOne(
             {'_id': newFood['_id']}, 
