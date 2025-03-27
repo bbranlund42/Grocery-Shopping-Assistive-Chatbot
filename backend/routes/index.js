@@ -70,19 +70,21 @@ app.post('/addNewFood', async (req,res) => {
         const {product_id, product_name, category, quantity, price, description, location} = req.query;
         const newFood = new Food({product_id, product_name, category, quantity, price, description, location});
 
+        const savedFood = await newFood.save();
         const embedding = await embedding_model.embedQuery(newFood['product_name']); 
-        const res = await Food.updateOne(
+        const result = await Food.updateOne(
           {'_id': newFood['_id']}, 
           {$set: {'embedding': embedding} }, 
           {strict: false}
           ); 
-          const text = (`Product ID: ${newFood['product_id']}
-            Product Name: ${newFood['product_name']}
-            Category: ${newFood['category']}
-            Quantity: ${newFood['quantity']}
-            Price: ${newFood['price']}
-            Description: ${newFood['description']}
-            Location: ${newFood['location']}`
+          const text = (`
+Product ID: ${newFood['product_id']}
+Product Name: ${newFood['product_name']}
+Category: ${newFood['category']}
+Quantity: ${newFood['quantity']}
+Price: ${newFood['price']}
+Description: ${newFood['description']}
+Location: ${newFood['location']}`
         ); 
         const res2 = await Food.updateOne(
             {'_id': newFood['_id']}, 
@@ -90,7 +92,6 @@ app.post('/addNewFood', async (req,res) => {
             {strict: false}
         ); 
 
-        const savedFood = await newFood.save();
         res.status(201).json({message:"Added Successfully",data: savedFood});
     } catch (error) {
         res.status(500).json({ error: error.message });
