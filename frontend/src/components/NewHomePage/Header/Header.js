@@ -1,10 +1,24 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Menu, X } from "lucide-react"; // Import Lucide icons
+import { Menu, X,User } from "lucide-react"; // Import Lucide icons
 
 export default function Header() {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [username, setUsername] = useState("");
+
+  useEffect(() => {
+    const storedUsername = localStorage.getItem("username");
+    if (storedUsername) {
+      setUsername(storedUsername);
+    }
+  }, []);
+
+  const handleSignOut = () => {
+    localStorage.removeItem("username");
+    setUsername("");
+    navigate("/");
+  };
   
   const menuItems = [
     { label: "Products", href: "#products" },
@@ -52,6 +66,19 @@ export default function Header() {
 
             {/* Auth Buttons */}
             <div className="flex items-center space-x-4">
+              {username ? (
+                <div className="flex items-center space-x-2">
+                  <User size={20} className="text-gray-600" />
+                  <span className="text-sm font-medium">{username}</span>
+                  <button
+                    className="text-gray-600 hover:text-gray-900 px-3 py-1 text-sm font-medium"
+                    onClick={handleSignOut}
+                  >
+                      Sign out
+                    </button>
+                    </div>
+              ):(
+              <>
               <button
                 className="text-gray-600 hover:text-gray-900 px-3 py-1 text-sm font-medium"
                 onClick={() => navigate("/LoginPage")}
@@ -64,6 +91,8 @@ export default function Header() {
               >
                 Register
               </button>
+              </>
+              )}
             </div>
           </div>
         </div>

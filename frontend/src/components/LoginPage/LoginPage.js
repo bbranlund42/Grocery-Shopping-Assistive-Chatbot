@@ -1,8 +1,22 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import {ArrowLeft} from "lucide-react";
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const[username, setUsername] = React.useState("");
+  const[password, setPassword] = React.useState("");
+
+  const handleSignIn = () => {
+    if (username.trim() === ''){
+      alert("Please enter a valid username");
+      return;
+    }
+
+    localStorage.setItem('username', username);
+
+    navigate("/");
+  };
 
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
@@ -22,6 +36,8 @@ const LoginPage = () => {
               type="text"
               id="email"
               placeholder="E-mail/Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
           </div>
@@ -36,6 +52,8 @@ const LoginPage = () => {
               type="password"
               id="password"
               placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
           </div>
@@ -55,7 +73,7 @@ const LoginPage = () => {
           <button
             type="button"
             className="w-full py-2 px-4 bg-blue-500 text-white font-medium rounded-md hover:bg-blue-600"
-            onClick={() => navigate("/HomePage")}
+            onClick={handleSignIn}
           >
             Sign in
           </button>
