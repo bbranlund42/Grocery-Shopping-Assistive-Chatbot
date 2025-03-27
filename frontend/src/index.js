@@ -13,6 +13,7 @@ import NavigatePage from "./components/NavigatePage/NavigatePage";
 import NewHomePage from "./components/NewHomePage/Home/Home";
 import reportWebVitals from "./reportWebVitals";
 import Order_History from "./components/Order_history/Order_History";
+import DevPage from "./components/DevPage/devPage"; 
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
@@ -31,6 +32,7 @@ root.render(
         <Route path="NavigatePage" element={<NavigatePage />} />
         <Route path="JustChatting" element={<JustChatting />} />
         <Route path= "Order_History" element={<Order_History/>}/>
+        <Route path="DevPage" element={<DevPage/>}/>
       </Routes>
     </BrowserRouter>
   </React.StrictMode>
