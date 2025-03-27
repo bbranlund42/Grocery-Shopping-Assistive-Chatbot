@@ -79,12 +79,12 @@ app.post('/addNewFood', async (req,res) => {
           {strict: false}
           ); 
           const text = (`Product ID: ${newFood['product_id']}
-Product Name: ${newFood['product_name']}
-Category: ${newFood['category']}
-Quantity: ${newFood['quantity']}
-Price: ${newFood['price']}
-Description: ${newFood['description']}
-Location: $`
+            Product Name: ${newFood['product_name']}
+            Category: ${newFood['category']}
+            Quantity: ${newFood['quantity']}
+            Price: ${newFood['price']}
+            Description: ${newFood['description']}
+            Location: ${newFood['location']}`
         ); 
         const res2 = await Food.updateOne(
             {'product_id': newFood['product_id']}, 

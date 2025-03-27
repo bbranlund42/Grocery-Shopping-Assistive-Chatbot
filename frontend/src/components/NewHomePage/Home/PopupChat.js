@@ -45,7 +45,7 @@ const PopupChatbot = ({ isTriggered = false, onClose }) => {
     try {
       // Convert history to just the text content
       const historyString = history.map(({ text }) => text).join('\n');
-      console.log(historyString);
+      // console.log(historyString);
 
       // Use Axios to make the POST request to localhost
       const response = await axios.post("http://localhost:5001/invoke-model", {
@@ -54,11 +54,46 @@ const PopupChatbot = ({ isTriggered = false, onClose }) => {
 
       // Getting the API response and assigning it to apiResponse
       const apiResponse = response.data.generation;
+      
+      // These are for Debugging
+      // console.log(response)
+      //console.log(apiResponse);
+      // console.log(typeof apiResponse);
 
+      // Parse only for setting state, but keep the returned value as a string
+      let responseJSON;
+      if (typeof apiResponse === "string") {
+        try {
+          responseJSON = JSON.parse(apiResponse);
+        } catch (error) {
+          console.error("Error parsing JSON:", error);
+          console.error("Raw API Response:", apiResponse);
+          return apiResponse;  // Return the raw string if parsing fails
+        }
+      } else {
+        responseJSON = apiResponse;  // Already a JSON object
+      }
+
+      // Ensure valid structure before updating state
+      if (!responseJSON || !responseJSON.products || !responseJSON.answer) {
+        console.error("Invalid API response format:", responseJSON);
+        return apiResponse;  // Return raw string in case of issues
+      }
+      // Debugging statement
+      // console.log(responseJSON);
+
+      // set table
       // Update the history with the bot's response
-      updateHistory(apiResponse);
 
-      return response.data.generation;
+      updateHistory(responseJSON.answer);
+
+      // Debugging
+      // console.log(typeof responseJSON)
+      // console.log(typeof response.data.generation)
+
+
+      // Assuming the response contains the bot's generation
+      return apiResponse;
     } catch (error) {
       console.error("Error invoking model:", error);
 

@@ -50,10 +50,27 @@ function JustChatting() {
       //console.log(apiResponse);
       // console.log(typeof apiResponse);
 
-      const responseJSON = typeof apiResponse === "string" ? JSON.parse(apiResponse) : apiResponse;
+      // Parse only for setting state, but keep the returned value as a string
+      let responseJSON;
+      if (typeof apiResponse === "string") {
+        try {
+          responseJSON = JSON.parse(apiResponse);
+        } catch (error) {
+          console.error("Error parsing JSON:", error);
+          console.error("Raw API Response:", apiResponse);
+          return apiResponse;  // Return the raw string if parsing fails
+        }
+      } else {
+        responseJSON = apiResponse;  // Already a JSON object
+      }
 
+      // Ensure valid structure before updating state
+      if (!responseJSON || !responseJSON.products || !responseJSON.answer) {
+        console.error("Invalid API response format:", responseJSON);
+        return apiResponse;  // Return raw string in case of issues
+      }
       // Debugging statement
-      console.log(responseJSON);
+      // console.log(responseJSON);
 
       // set table
       // Update the history with the bot's response
@@ -61,9 +78,13 @@ function JustChatting() {
       setProductData(responseJSON.products);
       updateHistory(responseJSON.answer);
 
+      // Debugging
+      // console.log(typeof responseJSON)
+      // console.log(typeof response.data.generation)
+
 
       // Assuming the response contains the bot's generation
-      return response.data.generation;
+      return apiResponse;
     } catch (error) {
       console.error("Error invoking model:", error);
 
