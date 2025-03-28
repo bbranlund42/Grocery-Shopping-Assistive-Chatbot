@@ -66,8 +66,9 @@ app.get('/findAllProducts', async (req, res) => {
   });
 
 app.post('/addNewFood', async (req,res) => {
-    try{
-        const {product_id, product_name, category, quantity, price, description, location} = req.query;
+    try{        
+        const {product_id, product_name, category, quantity, price, description, location} = req.body;
+        //const {product_id, product_name, category, quantity, price, description, location} = req.query;
         const newFood = new Food({product_id, product_name, category, quantity, price, description, location});
 
         const savedFood = await newFood.save();

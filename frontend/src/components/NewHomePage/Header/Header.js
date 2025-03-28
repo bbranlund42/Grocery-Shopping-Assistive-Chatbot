@@ -21,11 +21,12 @@ export default function Header() {
   };
   
   const menuItems = [
-    { label: "Products", href: "#products" },
+    { label: "Products", href: "/" },
     { label: "Just Chatting", href: "/JustChatting" },
     { label: "Cart", href: "/cart" },
     { label: "Contact", href: "#" },
-    { label: "Order History", href: "/Order_History"}
+    { label: "Order History", href: "/Order_History"},
+    { label: "Dev Page", href: "/DevPage"}
   ];
 
   return (
