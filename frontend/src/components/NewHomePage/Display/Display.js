@@ -11,6 +11,9 @@ import vegetableImage from '../Display/Icons/vegetableImage.jpeg';
 import bakeryImage from '../Display/Icons/bakeryImage.jpg';
 import candyImage from '../Display/Icons/candyImage.jpg';
 import snackImage from '../Display/Icons/snackImage.jpg';
+import bevImage from '../Display/Icons/bevImage.jpeg';
+import meatImage from '../Display/Icons/meatImage.jpg';
+import dairyImage from '../Display/Icons/dairyImage.jpeg';
 import peanutImage from '../Display/Icons/PeytonsPeanutButter.png';
 import jellyImage from '../Display/Icons/JairJelly.png';
 
@@ -53,7 +56,10 @@ export default function Display() {
             "Vegetable": vegetableImage,
             "Bakery": bakeryImage,
             "Candy": candyImage,
-            "Snack": snackImage
+            "Snack": snackImage,
+            "Beverages": bevImage,
+            "Dairy": dairyImage,
+            "Meat": meatImage
         };
         return imageMap[category] || '';
     };
@@ -241,6 +247,15 @@ const Foodlist = ({ filteredProducts, setSelectedProduct, addToCart }) => {
         }
         else if (i === "Snack") {
             return snackImage
+        }
+        else if (i === "Beverages"){
+            return bevImage
+        }
+        else if (i === "Dairy"){
+            return dairyImage
+        }
+        else if (i === "Meat"){
+            return meatImage
         }
     }
 
