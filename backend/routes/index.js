@@ -74,20 +74,20 @@ app.post('/addNewFood', async (req,res) => {
 
         const embedding = await embedding_model.embedQuery(newFood['product_name']); 
         const result = await Food.updateOne(
-          {'product_id': newFood['product_id']}, 
+          {'_id': newFood['_id']}, 
           {$set: {'embedding': embedding} }, 
           {strict: false}
           ); 
           const text = (`Product ID: ${newFood['product_id']}
-            Product Name: ${newFood['product_name']}
-            Category: ${newFood['category']}
-            Quantity: ${newFood['quantity']}
-            Price: ${newFood['price']}
-            Description: ${newFood['description']}
-            Location: ${newFood['location']}`
+Product Name: ${newFood['product_name']}
+Category: ${newFood['category']}
+Quantity: ${newFood['quantity']}
+Price: ${newFood['price']}
+Description: ${newFood['description']}
+Location: ${newFood['location']}`
         ); 
         const res2 = await Food.updateOne(
-            {'product_id': newFood['product_id']}, 
+            {'_id': newFood['_id']}, 
             {$set: {'text': text}}, 
             {strict: false}
         ); 
