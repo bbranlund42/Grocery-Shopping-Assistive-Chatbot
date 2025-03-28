@@ -26,7 +26,7 @@ export default function Header() {
     { label: "Cart", href: "/cart" },
     { label: "Contact", href: "#" },
     { label: "Order History", href: "/Order_History"},
-    { label: "Dev Page", href: "/DevPage"}
+    { label: "Dev Page", href: "DevPage" }
   ];
 
   return (
