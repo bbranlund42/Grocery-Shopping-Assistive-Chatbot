@@ -126,6 +126,8 @@ GUIDELINES:
         - `"quantity"`
         - `"price"` (as a number)
         - `"productID"` **(must be exactly as provided in the database, e.g., `"P001"`, `"P002"`)**.
+        - `"category"` **(must be exactly as provided in the database, e.g., `"Snack"`, `"Dairy"`)**.
+        - `"location"` **(must be exactly as provided in the database, e.g., `"A01"`, `"A87"`)**.
 
 9. NEVER add `productID` to the `"answer"` field.
 10. If no products match the query, return `"products": []` but still provide an `"answer"`.

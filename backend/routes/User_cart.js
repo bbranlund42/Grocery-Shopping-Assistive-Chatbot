@@ -44,6 +44,10 @@ const UserCartSchema = new Schema({
             type: Number,
             required: true,
             min: 0
+        },
+        category: {
+            type: String,
+            required: true
         }
     }],
     total: {
@@ -100,7 +104,8 @@ app.post('/cart/add', async (req, res) => {
                 productId, //stores the product ID
                 name: req.body.name, //stores teh product name
                 quantity, //stores quanitity
-                price: req.body.price //stores price
+                price: req.body.price, //stores price
+                category //stores category
             });
         }
 
@@ -147,7 +152,8 @@ app.post('/add/cart/table', async (req, res) => {
                 productId, //stores the product ID
                 name: req.body.name, //stores teh product name
                 quantity, //stores quanitity
-                price: req.body.price //stores price
+                price: req.body.price, //stores price
+                category //stores category
             });
         }
 

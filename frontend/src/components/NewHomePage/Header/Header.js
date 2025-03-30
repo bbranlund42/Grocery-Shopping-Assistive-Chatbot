@@ -59,7 +59,7 @@ export default function Header() {
               <a
                 key={item.label}
                 href={item.href}
-                className="text-gray-600 hover:text-gray-900 px-3 py-1 text-sm font-medium"
+                className="text-gray-600 hover:bg-gray-300 px-3 py-1 text-sm font-medium rounded-lg"
               >
                 {item.label}
               </a>
@@ -69,14 +69,16 @@ export default function Header() {
             <div className="flex items-center space-x-4">
               {username ? (
                 <div className="flex items-center space-x-2">
-                  <User size={20} className="text-gray-600" />
-                  <span className="text-sm font-medium">{username}</span>
                   <button
                     className="text-gray-600 hover:text-gray-900 px-3 py-1 text-sm font-medium"
                     onClick={handleSignOut}
                   >
                       Sign out
                     </button>
+                    <div className="flex-col justify-center items-center">
+                    <User size={30} className="text-gray-600" />
+                    <span className="text-sm font-medium text-gray-600 ms-2">{username}</span>
+                    </div>
                     </div>
               ):(
               <>

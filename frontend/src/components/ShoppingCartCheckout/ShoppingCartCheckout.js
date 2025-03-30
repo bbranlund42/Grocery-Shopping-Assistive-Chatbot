@@ -3,12 +3,36 @@ import { useNavigate } from 'react-router-dom';
 import { House, ShoppingCart, Trash2, Minus, Plus } from 'lucide-react';
 import axios from 'axios';
 
+import fruitImage from '../NewHomePage/Display/Icons/fruitImage.jpg';
+import vegetableImage from '../NewHomePage/Display/Icons/vegetableImage.jpeg';
+import bakeryImage from '../NewHomePage/Display/Icons/bakeryImage.jpg';
+import candyImage from '../NewHomePage/Display/Icons/candyImage.jpg';
+import snackImage from '../NewHomePage/Display/Icons/snackImage.jpg';
+import bevImage from '../NewHomePage/Display/Icons/bevImage.jpeg';
+import meatImage from '../NewHomePage/Display/Icons/meatImage.jpg';
+import dairyImage from '../NewHomePage/Display/Icons/dairyImage.jpeg';
+
 const ShoppingCartCheckout = ({onUpdateCart}) => {
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState([]);
   const [total, setTotal] = useState(0);
   //this isProcessing state is used so we dont make double payments or some ish while the current payment is processing, so we use this as a barrier to prevent mistakes during payment
   const [isProcessing, setIsProcessing] = useState(false);
+
+
+  const getCategoryImage = (category) => {
+          const imageMap = {
+              "Fruit": fruitImage,
+              "Vegetable": vegetableImage,
+              "Bakery": bakeryImage,
+              "Candy": candyImage,
+              "Snack": snackImage,
+              "Beverages": bevImage,
+              "Dairy": dairyImage,
+              "Meat": meatImage
+          };
+          return imageMap[category] || '';
+      };
 
   const fetchCart = async () => {
     if (!isProcessing) {
@@ -107,7 +131,7 @@ const ShoppingCartCheckout = ({onUpdateCart}) => {
                 <div className="flex items-center space-x-3">
                   <div className="w-16 h-16 bg-gray-200 rounded-lg overflow-hidden">
                     <img
-                      src="/api/placeholder/64/64"
+                      src={getCategoryImage(cartItems.category)}
                       alt={item.name}
                       className="w-full h-full object-cover"
                     />
@@ -121,21 +145,21 @@ const ShoppingCartCheckout = ({onUpdateCart}) => {
                 <div className="flex items-center space-x-2">
                   <div className="flex items-center space-x-2">
                     <button 
-                      className="bg-blue-400 text-white w-6 h-6 rounded flex items-center justify-center"
+                      className="bg-slate-300 text-black w-6 h-6 rounded-xl flex items-center justify-center hover:bg-slate-400"
                       onClick={() => updateQuantity(item.productId, Math.max(0, item.quantity - 1))}
                     >
                       -
                     </button>
                     <span className="text-lg">{item.quantity}</span>
                     <button 
-                      className="bg-blue-400 text-white w-6 h-6 rounded flex items-center justify-center"
+                      className="bg-slate-300 text-black w-6 h-6 rounded-xl flex items-center justify-center hover:bg-slate-400"
                       onClick={() => updateQuantity(item.productId, item.quantity + 1)}
                     >
                       +
                     </button>
                   </div>
                   <button 
-                    className="bg-red-400 text-white p-2 rounded"
+                    className="bg-red-400 text-white p-2 rounded hover:bg-red-500"
                     onClick={() => removeFromCart(item.productId)}
                   >
                     <Trash2 size={24} />
@@ -150,7 +174,7 @@ const ShoppingCartCheckout = ({onUpdateCart}) => {
         <div className="mt-4 flex justify-between items-center">
           <div className="font-bold text-xl">Total: ${total.toFixed(2)}</div>
           <button 
-            className="w-1/2 py-3 border-2 border-black rounded-lg text-center font-bold"
+            className="w-1/2 py-3 border-2 bg-blue-600 rounded-xl text-center text-white font-bold hover:bg-blue-800"
             disabled={cartItems.length === 0 || isProcessing}
             onClick={handlePayment}
           >

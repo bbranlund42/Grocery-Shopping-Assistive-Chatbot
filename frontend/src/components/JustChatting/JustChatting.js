@@ -156,7 +156,7 @@ function JustChatting() {
         <input
           ref={inputRef}
           type="text"
-          placeholder={isInView ? "Ex. Add ingredients for applesace to my cart" : "Ask questions here..."}
+          placeholder={isInView ? "Ex. Add ingredients for applesauce to my cart" : "Ask questions here..."}
           className={`message-input ${isInView ? 'bg-slate-200' : 'bg-slate-200'} w-full p-1.5 focus:outline-none`}
           required
         ></input>

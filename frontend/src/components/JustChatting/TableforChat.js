@@ -5,6 +5,15 @@ import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+import fruitImage from '../NewHomePage/Display/Icons/fruitImage.jpg';
+import vegetableImage from '../NewHomePage/Display/Icons/vegetableImage.jpeg';
+import bakeryImage from '../NewHomePage/Display/Icons/bakeryImage.jpg';
+import candyImage from '../NewHomePage/Display/Icons/candyImage.jpg';
+import snackImage from '../NewHomePage/Display/Icons/snackImage.jpg';
+import bevImage from '../NewHomePage/Display/Icons/bevImage.jpeg';
+import meatImage from '../NewHomePage/Display/Icons/meatImage.jpg';
+import dairyImage from '../NewHomePage/Display/Icons/dairyImage.jpeg';
+
 const MyTableforSuggest = ({ products }) => {
 
 
@@ -12,7 +21,21 @@ const MyTableforSuggest = ({ products }) => {
     // Initialize with an empty array if products is undefined
     const [data, setData] = useState([]);
     // Track count for each product separately using product_name as key
-        const [counts, setCounts] = useState({});
+    const [counts, setCounts] = useState({});
+
+    const getCategoryImage = (category) => {
+        const imageMap = {
+            "Fruit": fruitImage,
+            "Vegetable": vegetableImage,
+            "Bakery": bakeryImage,
+            "Candy": candyImage,
+            "Snack": snackImage,
+            "Beverages": bevImage,
+            "Dairy": dairyImage,
+            "Meat": meatImage
+        };
+        return imageMap[category] || '';
+    };
 
     useEffect(() => {
         // First, completely clear the existing data
@@ -34,7 +57,7 @@ const MyTableforSuggest = ({ products }) => {
             }
         }, 0);
     }, [products]);
-    
+
     const addToCart = async (food) => {
 
         if (food.quantity === 0) {
@@ -62,7 +85,7 @@ const MyTableforSuggest = ({ products }) => {
 
 
     // Update data when products prop changes
-     // This dependency ensures the effect runs whenever products changes
+    // This dependency ensures the effect runs whenever products changes
 
     const decrement = (productName) => {
         setCounts(prevCounts => ({
@@ -80,26 +103,36 @@ const MyTableforSuggest = ({ products }) => {
 
     return (
         <>
-            <div className="flex">
-                <TableContainer className=""
+            <div className="flex items-center justify-center">
+                <TableContainer className="mb-11 max-w-3xl"
                     component={Paper}
                     variant="outlined"
                 >
-                    <Table aria-label="products table">
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>Name</TableCell>
-                                <TableCell>In Stock</TableCell>
-                                <TableCell>Quantity</TableCell>
-                                <TableCell>Action</TableCell>
-                            </TableRow>
-                        </TableHead>
+                    <Table aria-label="products table" size="small">
                         <TableBody>
                             {data.map((product) => (
                                 <TableRow key={product.product_name}>
-                                    <TableCell>{product.product_name}</TableCell>
-                                    <TableCell>{product.quantity}</TableCell>
-                                    <TableCell>
+                                    <TableCell className="px-2 py-3">
+                                        <div className="flex items-center space-x-2">
+                                            {/* Product image */}
+                                            <img
+                                                src={getCategoryImage(product.category)}
+                                                alt={product.product_name}
+                                                className="w-14 h-14 object-cover rounded-full bg-gray-100 flex-shrink-0"
+                                            />
+
+                                            {/* Product information */}
+                                            <div className="flex flex-col">
+                                                <span className="font-medium text-gray-900 text-base">{product.product_name}</span>
+                                                <div className="flex flex-col mt-1 text-sm">
+                                                    <span className="text-gray-500  ms-1 text-xs">Price: ${product.price}</span>
+                                                    <span className="text-gray-500 ms-1 text-xs">Location: {product.location}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell className="px-2 py-3">In Stock: {product.quantity}</TableCell>
+                                    <TableCell className="px-2 py-3">
                                         <div className="mt-2 flex items-center">
                                             <div className="flex items-center">
                                                 <button
@@ -123,10 +156,10 @@ const MyTableforSuggest = ({ products }) => {
                                             </div>
                                         </div>
                                     </TableCell>
-                                    <TableCell>
+                                    <TableCell className="px-2 py-3">
                                         <button
-                                            className="w-full mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
-                                            onClick={() => addToCart(product)}
+                                            className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
+                                            disabled={product.quantity == 0} onClick={() => addToCart(product)}
                                         >
                                             Add to Cart
                                         </button>
@@ -138,17 +171,17 @@ const MyTableforSuggest = ({ products }) => {
                 </TableContainer>
             </div>
             <ToastContainer
-                            position="bottom-right"
-                            autoClose={3000}
-                            hideProgressBar={false}
-                            newestOnTop
-                            closeOnClick
-                            rtl={false}
-                            pauseOnFocusLoss
-                            draggable
-                            pauseOnHover
-                            theme="light"
-                        />
+                position="bottom-right"
+                autoClose={500}
+                hideProgressBar={false}
+                newestOnTop
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="light"
+            />
         </>
     );
 };

@@ -183,7 +183,7 @@ const PopupChatbot = ({ isTriggered = false, onClose }) => {
         <div className="absolute bottom-16 right-0 w-80 sm:w-96 bg-white rounded-lg shadow-xl overflow-hidden flex flex-col transition-all duration-300 transform origin-bottom-right animate-fade-in h-96">
           {/* Header */}
           <div className="bg-blue-600 text-white p-3 flex justify-between items-center">
-            <h3 className="font-medium">Chuck Curtis</h3>
+            <h3 className="font-medium">Chuck Cartis</h3>
             <button onClick={handleClose} className="text-white hover:text-gray-200">
               <X size={20} />
             </button>

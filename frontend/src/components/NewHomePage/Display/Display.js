@@ -116,8 +116,8 @@ export default function Display() {
                 </div>
 
                 <div className="flex gap-3 items-center">
-                    <button onClick={() => navigate('/cart')} className="px-4 py-2 flex bg-blue-600 text-white rounded-lg hover:bg-gray-800">
-                        <ShoppingCart></ShoppingCart>
+                    <button onClick={() => navigate('/cart')} className="px-4 py-2 flex bg-blue-600 text-white rounded-lg hover:bg-blue-700 gap-2">
+                        <ShoppingCart></ShoppingCart> Cart
                     </button>
                 </div>
             </div>
@@ -196,7 +196,7 @@ export default function Display() {
                 pauseOnHover
                 theme="light"
             />
-        </div>  
+        </div>
     );
 };
 //newly implemented code
@@ -248,13 +248,13 @@ const Foodlist = ({ filteredProducts, setSelectedProduct, addToCart }) => {
         else if (i === "Snack") {
             return snackImage
         }
-        else if (i === "Beverages"){
+        else if (i === "Beverages") {
             return bevImage
         }
-        else if (i === "Dairy"){
+        else if (i === "Dairy") {
             return dairyImage
         }
-        else if (i === "Meat"){
+        else if (i === "Meat") {
             return meatImage
         }
     }
@@ -276,7 +276,7 @@ const Foodlist = ({ filteredProducts, setSelectedProduct, addToCart }) => {
                     <div
                         key={food._id}
                         onClick={() => food.quantity !== 0 && setSelectedProduct(food)}
-                        className="bg-white rounded-lg shadow-sm p-3 hover:shadow-md transition-shadow"
+                        className="bg-white w-64 rounded-lg shadow-sm p-3 hover:shadow-md transition-shadow flex flex-col h-full"
                     >
                         <img
                             src={setImages(food.category)}
@@ -286,42 +286,38 @@ const Foodlist = ({ filteredProducts, setSelectedProduct, addToCart }) => {
                                 : "w-full h-32 object-cover rounded-md bg-red-100"
                             }
                         />
-                        <div className="mt-2">
-                            <div className="flex justify-between items-center">
-                                <h3 className="flex text-grey-800 font-semibold text-l flex-wrap">
-                                    {food.product_name}
-                                </h3>
-                                <div className="text-sm">
-                                    <p className={changeText(food.quantity)}>{test(food.quantity)}
-                                    </p>
+                        <div className="mt-2 flex-grow flex flex-col">
+                            <h3 className="text-gray-900 font-bold text-lg truncate">
+                                {food.product_name}
+                            </h3>
+                            <div className="flex items-center justify-between">
+                                <div className="text-s">
+                                    <p className={changeText(food.quantity)}>{test(food.quantity)} | Aisle: {food.location}</p>
                                 </div>
                             </div>
 
-                            <div className="aisle-location">
-                                <p className="text-gray-600 text-sm mt-1">
-                                    Aisle: {food.location}
-                                </p>
+                            {/* Spacer to push the button to the bottom */}
+                            <div className="flex-grow"></div>
+                            <div className="flex items-center justify-between mt-1 gap-2">
+                                <div className="text-xl">
+                                    <p className="text-gray-900 font-medium mt-2">
+                                        ${food.price.toFixed(2)}
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        addToCart(food);
+                                    }}
+                                    disabled={food.quantity === 0}
+                                    className="mt-2 w-32 flex items-center justify-center bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 
+                                transition-all duration-200 transform active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50
+                                disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                >
+                                    <ShoppingCart className="mr-2" size={20} />
+                                    Add to Cart
+                                </button>
                             </div>
-
-                            <div className="text-xl">
-                                <p className="text-gray-900 font-medium mt-2">
-                                    ${food.price.toFixed(2)}
-                                </p>
-                            </div>
-
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    addToCart(food);
-                                }}
-                                disabled={food.quantity === 0}
-                                className="mt-4 w-full flex items-center justify-center bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 
-                            transition-all duration-200 transform active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50
-                            disabled:bg-gray-400 disabled:cursor-not-allowed"
-                            >
-                                <ShoppingCart className="mr-2" size={20} />
-                                Add to Cart
-                            </button>
                         </div>
                     </div>
                 ))

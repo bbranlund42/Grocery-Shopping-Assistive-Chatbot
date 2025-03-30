@@ -30,7 +30,7 @@ export default function HomePage() {
                         Make Shopping Easy
                     </h1>
                     <p className="text-2xl text-gray-200 mb-8">
-                        Be An Agile Shopper with AI
+                        Be an Agile Shopper with AI
                     </p>
                     
                     {/* Buttons Container */}
