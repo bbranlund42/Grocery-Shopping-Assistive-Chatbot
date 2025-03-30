@@ -276,7 +276,7 @@ const Foodlist = ({ filteredProducts, setSelectedProduct, addToCart }) => {
                     <div
                         key={food._id}
                         onClick={() => food.quantity !== 0 && setSelectedProduct(food)}
-                        className="bg-white w-64 rounded-lg shadow-sm p-3 hover:shadow-md transition-shadow flex flex-col h-full"
+                        className="bg-white w-72 rounded-lg shadow-sm p-3 hover:shadow-md transition-shadow flex flex-col h-full"
                     >
                         <img
                             src={setImages(food.category)}
@@ -300,7 +300,7 @@ const Foodlist = ({ filteredProducts, setSelectedProduct, addToCart }) => {
                             <div className="flex-grow"></div>
                             <div className="flex items-center justify-between mt-1 gap-2">
                                 <div className="text-xl">
-                                    <p className="text-gray-900 font-medium mt-2">
+                                    <p className="text-gray-900 font-medium text-2xl mt-2">
                                         ${food.price.toFixed(2)}
                                     </p>
                                 </div>

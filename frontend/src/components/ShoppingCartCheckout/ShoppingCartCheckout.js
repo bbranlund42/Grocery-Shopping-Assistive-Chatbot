@@ -3,14 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { House, ShoppingCart, Trash2, Minus, Plus } from 'lucide-react';
 import axios from 'axios';
 
-import fruitImage from '../NewHomePage/Display/Icons/fruitImage.jpg';
-import vegetableImage from '../NewHomePage/Display/Icons/vegetableImage.jpeg';
-import bakeryImage from '../NewHomePage/Display/Icons/bakeryImage.jpg';
-import candyImage from '../NewHomePage/Display/Icons/candyImage.jpg';
-import snackImage from '../NewHomePage/Display/Icons/snackImage.jpg';
-import bevImage from '../NewHomePage/Display/Icons/bevImage.jpeg';
-import meatImage from '../NewHomePage/Display/Icons/meatImage.jpg';
-import dairyImage from '../NewHomePage/Display/Icons/dairyImage.jpeg';
+
 
 const ShoppingCartCheckout = ({onUpdateCart}) => {
   const navigate = useNavigate();
@@ -18,21 +11,6 @@ const ShoppingCartCheckout = ({onUpdateCart}) => {
   const [total, setTotal] = useState(0);
   //this isProcessing state is used so we dont make double payments or some ish while the current payment is processing, so we use this as a barrier to prevent mistakes during payment
   const [isProcessing, setIsProcessing] = useState(false);
-
-
-  const getCategoryImage = (category) => {
-          const imageMap = {
-              "Fruit": fruitImage,
-              "Vegetable": vegetableImage,
-              "Bakery": bakeryImage,
-              "Candy": candyImage,
-              "Snack": snackImage,
-              "Beverages": bevImage,
-              "Dairy": dairyImage,
-              "Meat": meatImage
-          };
-          return imageMap[category] || '';
-      };
 
   const fetchCart = async () => {
     if (!isProcessing) {
@@ -131,7 +109,7 @@ const ShoppingCartCheckout = ({onUpdateCart}) => {
                 <div className="flex items-center space-x-3">
                   <div className="w-16 h-16 bg-gray-200 rounded-lg overflow-hidden">
                     <img
-                      src={getCategoryImage(cartItems.category)}
+                      src={item.name}
                       alt={item.name}
                       className="w-full h-full object-cover"
                     />
