@@ -5,61 +5,33 @@ import axios from 'axios';
 
 const OrderHistory = () => {
   const navigate = useNavigate();
-  const [orderHistory, setOrderHistory] = useState([]);
-  const [total, setTotal] = useState(0);
+  const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   
   useEffect(() => {
-    const fetchPreviousItems = async () => {
+    const fetchOrderHistory = async () => {
       setIsLoading(true);
       try {
         const response = await axios.get('http://localhost:4800/Order_history');
         
-        console.log('Raw response:', response.data); // Debug log
+        console.log('Raw response:', response.data);
         
-        // Multiple levels of fallback for different possible response structures
-        const historicItems = 
-          response.data.Historic_Items || 
-          response.data.items || 
-          response.data || 
-          [];
+        // Get the orders array from the response
+        const historicOrders = response.data.Historic_Items || [];
         
-        // Flatten and filter items, ensuring each item has required properties
-        const flattenedItems = historicItems.flatMap(order => 
-          Array.isArray(order.items) ? order.items : 
-          Array.isArray(order) ? order : 
-          [order]
-        ).filter(item => 
-          item && 
-          typeof item.price === 'number' && 
-          typeof item.quantity === 'number' &&
-          item.name
-        );
-        
-        console.log('Processed items:', flattenedItems); // Debug log
-        
-        setOrderHistory(flattenedItems);
-        
-        // Calculate total with additional safety checks
-        const cartTotal = flattenedItems.reduce(
-          (sum, item) => sum + (item.price || 0) * (item.quantity || 0), 
-          0
-        );
-        
-        setTotal(cartTotal);
+        setOrders(historicOrders);
         setError(null);
       } catch (error) {
-        console.error('Error fetching previous items:', error);
+        console.error('Error fetching order history:', error);
         setError('Failed to load order history. Please try again later.');
-        setOrderHistory([]);
-        setTotal(0);
+        setOrders([]);
       } finally {
         setIsLoading(false);
       }
     };
     
-    fetchPreviousItems();
+    fetchOrderHistory();
   }, []);
   
   return (
@@ -82,57 +54,59 @@ const OrderHistory = () => {
       </div>
 
       {/* Order History Container */}
-      <div className="w-full max-w-md border border-blue-200 rounded-lg p-4 mx-4">
+      <div className="w-full max-w-md p-4 mx-4">
         {isLoading ? (
           <div className="text-center py-8">Loading order history...</div>
         ) : error ? (
           <div className="text-center text-red-500 py-8">{error}</div>
         ) : (
-          <>
-            {/* Order Items */}
-            <div className="space-y-4">
-              {orderHistory.length === 0 ? (
-                <div className="text-center text-gray-500 py-8">No order history found</div>
-              ) : (
-                orderHistory.map((item, index) => (
-                  <div key={`${item.product_id || index}`} className="flex items-center justify-between bg-gray-100 rounded-lg p-3">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-16 h-16 bg-gray-200 rounded-lg overflow-hidden">
-                        <img
-                          src="/api/placeholder/64/64"
-                          alt={item.name}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div>
-                        <div className="font-medium">{item.name}</div>
-                        <div className="text-sm text-gray-600">${(item.price || 0).toFixed(2)} per unit</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center">
-                      <div className="text-lg font-medium bg-blue-100 px-3 py-1 rounded-full">
-                        Qty: {item.quantity || 0}
-                      </div>
-                      {item.orderDate && (
-                        <div className="ml-2 text-sm text-gray-500">
-                          {new Date(item.orderDate).toLocaleDateString()}
-                        </div>
-                      )}
+          <div className="space-y-6">
+            {orders.length === 0 ? (
+              <div className="text-center text-gray-500 py-8">No order history found</div>
+            ) : (
+              orders.map((order, orderIndex) => (
+                <div key={order._id || orderIndex} className="border border-blue-200 rounded-lg overflow-hidden">
+                  {/* Order Header */}
+                  <div className="bg-blue-50 p-3 border-b border-blue-200">
+                    <div className="font-semibold">
+                      Order #{(order._id || '').substring((order._id || '').length - 6) || orderIndex + 1}
                     </div>
                   </div>
-                ))
-              )}
-            </div>
-            
-            {/* Order Total */}
-            {orderHistory.length > 0 && (
-              <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-                <div className="font-bold text-xl text-center">
-                  Total Order Value: ${total.toFixed(2)}
+                  
+                  {/* Order Items */}
+                  <div className="divide-y divide-gray-100">
+                    {Array.isArray(order.items) && order.items.map((item, index) => (
+                      <div key={`${item.product_id || index}`} className="flex items-center justify-between p-3">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-12 h-12 bg-gray-200 rounded-lg overflow-hidden">
+                            <img
+                              src="/api/placeholder/48/48"
+                              alt={item.name}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div>
+                            <div className="font-medium">{item.name}</div>
+                            <div className="text-sm text-gray-600">${(item.price || 0).toFixed(2)} per unit</div>
+                          </div>
+                        </div>
+                        <div className="text-lg font-medium bg-blue-100 px-3 py-1 rounded-full">
+                          Qty: {item.quantity || 0}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {/* Order Total */}
+                  <div className="p-3 bg-blue-50 border-t border-blue-200">
+                    <div className="font-bold text-right">
+                      Total: ${(order.totalAmount || 0).toFixed(2)}
+                    </div>
+                  </div>
                 </div>
-              </div>
+              ))
             )}
-          </>
+          </div>
         )}
       </div>
     </div>
