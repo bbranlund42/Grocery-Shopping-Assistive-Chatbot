@@ -140,21 +140,21 @@ const ShoppingCartCheckout = ({onUpdateCart}) => {
                 <div className="flex items-center space-x-2">
                   <div className="flex items-center space-x-2">
                     <button 
-                      className="bg-blue-400 text-white w-6 h-6 rounded flex items-center justify-center"
+                      className="bg-slate-300 text-white w-6 h-6 rounded-2xl flex items-center justify-center hover:bg-slate-400"
                       onClick={() => updateQuantity(item.productId, Math.max(0, item.quantity - 1))}
                     >
                       -
                     </button>
                     <span className="text-lg">{item.quantity}</span>
                     <button 
-                      className="bg-blue-400 text-white w-6 h-6 rounded flex items-center justify-center"
+                      className="bg-slate-300 text-white w-6 h-6 rounded-2xl flex items-center justify-center hover:bg-slate-400"
                       onClick={() => updateQuantity(item.productId, item.quantity + 1)}
                     >
                       +
                     </button>
                   </div>
                   <button 
-                    className="bg-red-400 text-white p-2 rounded"
+                    className="bg-red-400 text-white p-2 rounded-md hover:bg-red-500"
                     onClick={() => removeFromCart(item.productId)}
                   >
                     <Trash2 size={24} />
@@ -169,7 +169,7 @@ const ShoppingCartCheckout = ({onUpdateCart}) => {
         <div className="mt-4 flex justify-between items-center">
           <div className="font-bold text-xl">Total: ${total.toFixed(2)}</div>
           <button 
-            className="w-1/2 py-3 border-2 border-black rounded-lg text-center font-bold"
+            className="w-1/2 py-3 border-2 bg-blue-500 rounded-lg text-center font-bold hover:bg-blue-600 text-white"
             disabled={cartItems.length === 0 || isProcessing}
             onClick={handlePayment}
           >
