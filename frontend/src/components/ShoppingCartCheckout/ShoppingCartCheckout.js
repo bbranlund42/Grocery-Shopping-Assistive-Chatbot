@@ -3,8 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { House, ShoppingCart, Trash2, Minus, Plus } from 'lucide-react';
 import axios from 'axios';
 
-
-
 const ShoppingCartCheckout = ({onUpdateCart}) => {
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState([]);
@@ -32,24 +30,43 @@ const ShoppingCartCheckout = ({onUpdateCart}) => {
   const handlePayment = async () => {
     setIsProcessing(true);
     
-    // Update inventory
-    await axios.post('http://localhost:3500/updateInventory', {
-     //sets items to items in the cart, hence "cartItems" and send its to update inventory functions
-      items: cartItems
-    });
+    try {
+      // Update inventory
+      await axios.post('http://localhost:3500/updateInventory', {
+        //sets items to items in the cart, hence "cartItems" and send its to update inventory functions
+        items: cartItems
+      });
 
-    // this calls the clear endpoint to reset the users cart after they pay
-    await axios.post('http://localhost:4000/cart/clear');
+      // Save the order to order history BEFORE clearing the cart
+      // This is the critical change - save the current cart as a new order
+      await axios.post('http://localhost:4800/Order_history', {
+        Historic_Items: cartItems.map(item => ({
+          product_id: item.productId,
+          name: item.name,
+          quantity: item.quantity,
+          price: item.price,
+          orderDate: new Date()
+        }))
+      });
 
-    // Update local state
-    setCartItems([]);
-    setTotal(0);
-    if (onUpdateCart) {
-      onUpdateCart([]);
+      // this calls the clear endpoint to reset the users cart after they pay
+      await axios.post('http://localhost:4000/cart/clear');
+
+      // Update local state
+      setCartItems([]);
+      setTotal(0);
+      if (onUpdateCart) {
+        onUpdateCart([]);
+      }
+
+      alert('Payment successful! Thank you for your purchase.');
+      navigate('/');
+    } catch (error) {
+      console.error('Error processing payment:', error);
+      alert('There was an error processing your payment. Please try again.');
+    } finally {
+      setIsProcessing(false);
     }
-
-    alert('Payment successful! Thank you for your purchase.');
-    navigate('/');
   };
 
   const removeFromCart = async (productId) => {
@@ -109,7 +126,7 @@ const ShoppingCartCheckout = ({onUpdateCart}) => {
                 <div className="flex items-center space-x-3">
                   <div className="w-16 h-16 bg-gray-200 rounded-lg overflow-hidden">
                     <img
-                      src={item.name}
+                      src="/api/placeholder/64/64"
                       alt={item.name}
                       className="w-full h-full object-cover"
                     />
@@ -123,21 +140,21 @@ const ShoppingCartCheckout = ({onUpdateCart}) => {
                 <div className="flex items-center space-x-2">
                   <div className="flex items-center space-x-2">
                     <button 
-                      className="bg-slate-300 text-black w-6 h-6 rounded-xl flex items-center justify-center hover:bg-slate-400"
+                      className="bg-blue-400 text-white w-6 h-6 rounded flex items-center justify-center"
                       onClick={() => updateQuantity(item.productId, Math.max(0, item.quantity - 1))}
                     >
                       -
                     </button>
                     <span className="text-lg">{item.quantity}</span>
                     <button 
-                      className="bg-slate-300 text-black w-6 h-6 rounded-xl flex items-center justify-center hover:bg-slate-400"
+                      className="bg-blue-400 text-white w-6 h-6 rounded flex items-center justify-center"
                       onClick={() => updateQuantity(item.productId, item.quantity + 1)}
                     >
                       +
                     </button>
                   </div>
                   <button 
-                    className="bg-red-400 text-white p-2 rounded hover:bg-red-500"
+                    className="bg-red-400 text-white p-2 rounded"
                     onClick={() => removeFromCart(item.productId)}
                   >
                     <Trash2 size={24} />
@@ -152,7 +169,7 @@ const ShoppingCartCheckout = ({onUpdateCart}) => {
         <div className="mt-4 flex justify-between items-center">
           <div className="font-bold text-xl">Total: ${total.toFixed(2)}</div>
           <button 
-            className="w-1/2 py-3 border-2 bg-blue-600 rounded-xl text-center text-white font-bold hover:bg-blue-800"
+            className="w-1/2 py-3 border-2 border-black rounded-lg text-center font-bold"
             disabled={cartItems.length === 0 || isProcessing}
             onClick={handlePayment}
           >
