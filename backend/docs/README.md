@@ -49,6 +49,11 @@ fastapi
 uvicorn
 boto3
 pydantic
+botocore
+pymongo
+langchain
+langchain-community
+langchain-aws
 ```
 
 #### JavaScript Dependencies:
@@ -77,13 +82,25 @@ To start the FastAPI server and JavaScript backend services in a single command,
 
 ```json
 "scripts": {
-  "start:backend": "concurrently \"uvicorn RAGfastapp:app --host 0.0.0.0 --port 5001 --reload\" \"node server.js\" \"node User_cart.js\""
+  "start:backend": "concurrently \"node index.js\" \"node User_cart.js\""
 }
 ```
 
 Then, simply run:
 ```bash
 npm run start:backend
+```
+
+### Or to start all services use the following script, YOU HAVE TO BE IN BACKEND DIRECTORY
+```json
+"scripts": {
+  "start:all": "concurrently \"cd routes && node index.js\" \"cd routes && node User_cart.js\" \"cd ai && uvicorn RAGfastapp:app --host 0.0.0.0 --port 5001 --reload\" \"cd ../frontend && npm start\""
+}
+```
+
+Then, simply run:
+```bash
+npm run start:all
 ```
 
 This will start `uvicorn` and all `.js` services in parallel in one terminal using `concurrently`.

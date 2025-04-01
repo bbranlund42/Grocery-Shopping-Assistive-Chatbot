@@ -7,12 +7,19 @@ import mongoose from 'mongoose';
 import express  from 'express'; 
 import cors from 'cors';
 const PORT = 3500; 
+import { BedrockEmbeddings } from "@langchain/aws";
 
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
+// embedding model 
+const embedding_model = new BedrockEmbeddings({
+  model: 'amazon.titan-embed-text-v2:0',
+  credentials_profile_name: 'default'
+}); 
+
 
 const connectToMongo = async () => {
     await mongoose.connect(database, {
@@ -41,12 +48,15 @@ const FoodSchema = new Schema({
     }, 
     description: {
         type: String
+    },
+    location: {
+        type: String
     }
 }); 
 
 const Food = mongoose.model('Food', FoodSchema);
 
-app.get('/data', async (req, res) => {
+app.get('/findAllProducts', async (req, res) => {
     try {
       const items = await Food.find(); // Replace with your Mongoose model
       res.json(items);
@@ -56,11 +66,32 @@ app.get('/data', async (req, res) => {
   });
 
 app.post('/addNewFood', async (req,res) => {
-    try{
-        const {product_id, product_name, category, quantity, price, description} = req.query;
-        const newFood = new Food({product_id, product_name, category, quantity, price, description});
+    try{        
+        const {product_id, product_name, category, quantity, price, description, location} = req.body;
+        //const {product_id, product_name, category, quantity, price, description, location} = req.query;
+        const newFood = new Food({product_id, product_name, category, quantity, price, description, location});
 
-        const savedFood = await newFood.save();
+        const embedding = await embedding_model.embedQuery(newFood['product_name']); 
+        const result = await Food.updateOne(
+          {'_id': newFood['_id']}, 
+          {$set: {'embedding': embedding} }, 
+          {strict: false}
+          ); 
+          const text = (`
+Product ID: ${newFood['product_id']}
+Product Name: ${newFood['product_name']}
+Category: ${newFood['category']}
+Quantity: ${newFood['quantity']}
+Price: ${newFood['price']}
+Description: ${newFood['description']}
+Location: ${newFood['location']}`
+        ); 
+        const res2 = await Food.updateOne(
+            {'_id': newFood['_id']}, 
+            {$set: {'text': text}}, 
+            {strict: false}
+        ); 
+
         res.status(201).json({message:"Added Successfully",data: savedFood});
     } catch (error) {
         res.status(500).json({ error: error.message });

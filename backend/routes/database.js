@@ -58,7 +58,7 @@ app.get('/products', async (req, res) => {
     }
 });
 
-// Get all food data
+// Get all food data (is this extra?)
 app.get('/data', async (req, res) => {
     try {
         const result = await Food.find().exec();

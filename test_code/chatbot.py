@@ -52,7 +52,10 @@ def main():
         context = """You are a helpful assistant that helps shoppers 
         in a grocery store with a variety of issues. Please refrain 
         from discussing anything but grocery-store and product-related 
-        questions and topics."""
+        questions and topics. If returning a list of items, please 
+        return them in a table format including item, price, quantity 
+        in stock, etc. Ensure the borders in the table line up so that 
+        the table is easily readable."""
 
         if iter == 1:
             history = f"""
@@ -125,7 +128,7 @@ def main():
             "temperature": 0.5,
         }
         request = json.dumps(native_request)
-
+        """
         embeddings = BedrockEmbeddings(
             model_id='amazon.titan-embed-text-v2:0',
             client=client
@@ -134,9 +137,9 @@ def main():
         embedding = embeddings.embed_query(text)
         print(embedding)
 
-        """
+        
         test_prompt = "Test prompt for embedding."
-
+        
         try:
             response_embed = client.invoke_model(modelId="amazon.titan-embed-text-v2:0", body=request)
             response_body = json.loads(response_embed['body'].read())

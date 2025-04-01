@@ -3,6 +3,7 @@ import { Search, Plus, Minus, ShoppingCart, X } from 'lucide-react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from "react-router-dom";
 
 // Import images
 import fruitImage from '../Display/Icons/fruitImage.jpg';
@@ -10,6 +11,11 @@ import vegetableImage from '../Display/Icons/vegetableImage.jpeg';
 import bakeryImage from '../Display/Icons/bakeryImage.jpg';
 import candyImage from '../Display/Icons/candyImage.jpg';
 import snackImage from '../Display/Icons/snackImage.jpg';
+import bevImage from '../Display/Icons/bevImage.jpeg';
+import meatImage from '../Display/Icons/meatImage.jpg';
+import dairyImage from '../Display/Icons/dairyImage.jpeg';
+import peanutImage from '../Display/Icons/PeytonsPeanutButter.png';
+import jellyImage from '../Display/Icons/JairJelly.png';
 
 
 
@@ -19,6 +25,7 @@ export default function Display() {
     const [foodItems, setFoodItems] = useState([]);
     const [cart, setCart] = useState([]);
     const [quantity, setQuantity] = useState(1);
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchCart();
@@ -36,7 +43,7 @@ export default function Display() {
 
     const fetchFoodItems = async () => {
         try {
-            const response = await axios.get('http://localhost:3500/data');
+            const response = await axios.get('http://localhost:3500/findAllProducts');
             setFoodItems(response.data);
         } catch (error) {
             console.error('Error fetching food items:', error);
@@ -49,7 +56,10 @@ export default function Display() {
             "Vegetable": vegetableImage,
             "Bakery": bakeryImage,
             "Candy": candyImage,
-            "Snack": snackImage
+            "Snack": snackImage,
+            "Beverages": bevImage,
+            "Dairy": dairyImage,
+            "Meat": meatImage
         };
         return imageMap[category] || '';
     };
@@ -105,12 +115,9 @@ export default function Display() {
                     <Search className="absolute right-3 top-2.5 text-gray-400" size={20} />
                 </div>
 
-                <div className="flex gap-4 items-center">
-                    <button className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800">
-                        New
-                    </button>
-                    <button className="px-4 py-2 text-gray-600 hover:text-gray-900">
-                        Price ascending
+                <div className="flex gap-3 items-center">
+                    <button onClick={() => navigate('/cart')} className="px-4 py-2 flex bg-blue-600 text-white rounded-lg hover:bg-blue-700 gap-2">
+                        <ShoppingCart></ShoppingCart> Cart
                     </button>
                 </div>
             </div>
@@ -143,7 +150,10 @@ export default function Display() {
                         <p className="text-lg font-medium mt-4">
                             ${selectedProduct.price.toFixed(2)}
                         </p>
-                        <h2 className="text-xl mb-4">{selectedProduct.description}</h2>
+                        <h2 className="text-xl mb-2">{selectedProduct.description}</h2>
+                        <p className="text-md font-medium">
+                            Aisle: {selectedProduct.location}
+                        </p>
 
                         <div className="mt-6 flex items-center gap-4">
                             <span className="text-gray-600">Quantity:</span>
@@ -238,10 +248,19 @@ const Foodlist = ({ filteredProducts, setSelectedProduct, addToCart }) => {
         else if (i === "Snack") {
             return snackImage
         }
+        else if (i === "Beverages") {
+            return bevImage
+        }
+        else if (i === "Dairy") {
+            return dairyImage
+        }
+        else if (i === "Meat") {
+            return meatImage
+        }
     }
 
     useEffect(() => {
-        axios.get('http://localhost:3500/data')
+        axios.get('http://localhost:3500/findAllProducts')
             .then(response => {
                 setFoodItems(response.data);
                 console.log('Current foodItems:', response.data); // Use response.data instead
@@ -257,7 +276,7 @@ const Foodlist = ({ filteredProducts, setSelectedProduct, addToCart }) => {
                     <div
                         key={food._id}
                         onClick={() => food.quantity !== 0 && setSelectedProduct(food)}
-                        className="bg-white rounded-lg shadow-sm p-3 hover:shadow-md transition-shadow"
+                        className="bg-white w-72 rounded-lg shadow-sm p-3 hover:shadow-md transition-shadow flex flex-col h-full"
                     >
                         <img
                             src={setImages(food.category)}
@@ -267,36 +286,38 @@ const Foodlist = ({ filteredProducts, setSelectedProduct, addToCart }) => {
                                 : "w-full h-32 object-cover rounded-md bg-red-100"
                             }
                         />
-                        <div className="mt-2">
-                            <div className="flex justify-between items-center">
-                                <h3 className="flex text-grey-800 font-semibold text-l flex-wrap">
-                                    {food.product_name}
-                                </h3>
-                                <div className="text-sm">
-                                    <p className={changeText(food.quantity)}>{test(food.quantity)}
-                                    </p>
+                        <div className="mt-2 flex-grow flex flex-col">
+                            <h3 className="text-gray-900 font-bold text-lg truncate">
+                                {food.product_name}
+                            </h3>
+                            <div className="flex items-center justify-between">
+                                <div className="text-s">
+                                    <p className={changeText(food.quantity)}>{test(food.quantity)} | Aisle: {food.location}</p>
                                 </div>
                             </div>
 
-                            <div className="text-xl">
-                                <p className="text-gray-900 font-medium mt-2">
-                                    ${food.price.toFixed(2)}
-                                </p>
+                            {/* Spacer to push the button to the bottom */}
+                            <div className="flex-grow"></div>
+                            <div className="flex items-center justify-between mt-1 gap-2">
+                                <div className="text-xl">
+                                    <p className="text-gray-900 font-medium text-2xl mt-2">
+                                        ${food.price.toFixed(2)}
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        addToCart(food);
+                                    }}
+                                    disabled={food.quantity === 0}
+                                    className="mt-2 w-32 flex items-center justify-center bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 
+                                transition-all duration-200 transform active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50
+                                disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                >
+                                    <ShoppingCart className="mr-2" size={20} />
+                                    Add to Cart
+                                </button>
                             </div>
-
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    addToCart(food);
-                                }}
-                                disabled={food.quantity === 0}
-                                className="mt-4 w-full flex items-center justify-center bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 
-                            transition-all duration-200 transform active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50
-                            disabled:bg-gray-400 disabled:cursor-not-allowed"
-                            >
-                                <ShoppingCart className="mr-2" size={20} />
-                                Add to Cart
-                            </button>
                         </div>
                     </div>
                 ))
