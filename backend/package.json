@@ -13,8 +13,11 @@
   "description": "",
   "type": "module",
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
     "@langchain/aws": "^0.1.7",
     "@langchain/core": "^0.3.43",
+    "@mui/material": "^7.0.1",
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
     "express": "^4.21.2",
