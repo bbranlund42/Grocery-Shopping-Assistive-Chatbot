@@ -30,3 +30,6 @@ __pycache__/
 # Chat Log
 chat_history.log
 langchain_history.log
+
+# frontend 
+frontend/src/components/JustChatting/tempJustChatting.js

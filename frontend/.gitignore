@@ -23,4 +23,7 @@ yarn-debug.log*
 yarn-error.log*
 
 
-frontend\src\components\NewHomePage\Home\Home2.js
+frontend/src/components/NewHomePage/Home/Home2.js
+
+# frontend 
+frontend/src/components/JustChatting/tempJustChatting.js

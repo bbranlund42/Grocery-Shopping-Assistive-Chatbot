@@ -192,77 +192,18 @@ async def invoke_model(request: PromptRequest):
         retrieved_info = ""  # Fallback if retrieval fails
         log_message("System", f"Vector DB retrieval error: {str(e)}")
         raise HTTPException(status_code=500, detail="Error processing request")
+
+# function for Chat History
+@app.get("/chat-history/{user_id}")
+async def get_chat_history(user_id: str):
+    chat = chat_collection.find_one({"user_id": user_id})
+    if not chat:
+        # Return empty messages array instead of 404 error
+        return {"messages": []}
     
+    # Format timestamps for frontend display if they exist
+    for message in chat["messages"]:
+        if "timestamp" in message:
+            message["timestamp"] = message["timestamp"].isoformat()
     
-    # context = f"""You are a helpful assistant that assists shoppers in a grocery store.  
-    #         You provide information about products, availability, and pricing while refraining  
-    #         from discussing topics unrelated to grocery store products.  
-
-    #         When asked to display inventory data, present the information in the following structured table format:
-
-    #         | Product ID | Product Name        | Category   | Quantity | Price  | Description       |
-    #         |------------|---------------------|------------|----------|--------|-------------------|
-    #         | 12345      | Apples              | Produce    | 50       | $1.99  | Fresh red apples  |
-    #         | 67890      | Milk (1 Gallon)     | Dairy      | 20       | $3.49  | Whole milk        |
-    #         | 11223      | Bread (Whole Wheat) | Bakery     | 15       | $2.99  | Soft whole wheat  |
-    #         | 44556      | Eggs (12 count)     | Dairy      | 30       | $4.29  | Farm-fresh eggs   |
-    #         | 78901      | Chicken Breast (lb) | Meat       | 25       | $5.99  | Boneless, skinless|
-    #         | 23456      | Rice (5 lb)         | Grains     | 10       | $6.49  | Long-grain rice   |
-
-    #         Ensure that product details align with the available inventory. If data is missing,  
-    #         notify the user rather than generating inaccurate information. Ensure the borders in the table line up so that the table is easily readable.
-    #         Relevant information retrieved: {retrieved_info}""" if retrieved_info else "No relevant documents found."
-    
-    # context = f"""You are a helpful assistant that assists shoppers in a grocery store.  
-    #     You provide information about products, pricing, and availability while refraining  
-    #     from discussing topics unrelated to grocery store items.  
-
-    #     When returning a list of items, format the response as a **properly aligned table**  
-    #     with clear borders, ensuring readability. The table should include columns for  
-    #     Product ID, Item Name, Category, Price, Quantity in Stock, and Description.  
-    #     Only use real data, DO NOT fabricate data.
-    #     If data is available, format it as follows:  
-
-    #     | Product ID | Item Name          | Category   | Price  | Quantity | Description        |
-    #     |------------|--------------------|------------|--------|----------|--------------------|
-    #     | P002       | Apples             | Produce    | $1.99  | 50       | Fresh red apples   |
-    #     | P003       | Milk (1 Gallon)    | Dairy      | $3.49  | 20       | Whole milk         |
-    #     | P001       | Bread (Whole Wheat)| Bakery     | $2.99  | 15       | Soft whole wheat   |
-
-    #     Ensure the table aligns properly by adjusting spaces as needed.  
-
-    #     Relevant information retrieved: {retrieved_info}""" if retrieved_info else "No relevant documents found."
-    
-    # # Format the prompt
-    # formatted_prompt = f"""
-    # <|begin_of_text|>
-    # <|start_header_id|>system<|end_header_id|>
-    # {context}
-    # <|eot_id|>
-    # <|start_header_id|>user<|end_header_id|>
-    # {user_query}
-    # <|eot_id|>
-    # <|start_header_id|>assistant<|end_header_id|>
-    # """
-
-    # native_request = {
-    #     "prompt": formatted_prompt,
-    #     "max_gen_len": 512,
-    #     "temperature": 0.1,
-    # }
-
-    # try:
-    #     response = client.invoke_model(modelId="meta.llama3-3-70b-instruct-v1:0", body=json.dumps(native_request))
-    #     model_response = json.loads(response["body"].read())
-    #     bot_reply = model_response.get("generation", "")
-    #     log_message("Bot", bot_reply)
-    #     return {"generation": bot_reply}
-    # except (ClientError, Exception) as e:
-    #     error_message = f"Failed to invoke model: {str(e)}"
-    #     log_message("System", error_message)
-    #     raise HTTPException(status_code=500, detail=error_message)
-    
-    
-    
-    #add a !@ before the first item and between all of the next items to delimit the items, display all the information from the database.
-    #9. Display the JSON at the very end of the message, add !@# between your response and the JSON.
+    return {"messages": chat["messages"]}
