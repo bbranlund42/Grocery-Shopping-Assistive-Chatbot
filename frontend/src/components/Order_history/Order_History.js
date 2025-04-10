@@ -8,7 +8,29 @@ const OrderHistory = () => {
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
+  // Function to repurchase items from a previous order
+  const repurchaseItems = async (items) => {
+    try {
+      // Add items to cart
+      for (const item of items) {
+        await axios.post('http://localhost:4000/cart/add', {
+          productId: item.product_id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity
+        });
+      }
+      
+      // Navigate to cart after adding items
+      alert('Items added to cart!');
+      navigate('/cart');
+    } catch (error) {
+      console.error('Error repurchasing items:', error);
+      alert('Failed to add items to cart. Please try again.');
+    }
+  };
+
   useEffect(() => {
     const fetchOrderHistory = async () => {
       setIsLoading(true);
@@ -71,6 +93,9 @@ const OrderHistory = () => {
                     <div className="font-semibold">
                       Order #{(order._id || '').substring((order._id || '').length - 6) || orderIndex + 1}
                     </div>
+                    <div className="text-sm text-gray-500">
+                      {new Date(order.items[0]?.orderDate || Date.now()).toLocaleDateString()}
+                    </div>
                   </div>
                   
                   {/* Order Items */}
@@ -97,11 +122,17 @@ const OrderHistory = () => {
                     ))}
                   </div>
                   
-                  {/* Order Total */}
-                  <div className="p-3 bg-blue-50 border-t border-blue-200">
-                    <div className="font-bold text-right">
+                  {/* Order Total and Repurchase Button */}
+                  <div className="p-3 bg-blue-50 border-t border-blue-200 flex justify-between items-center">
+                    <div className="font-bold">
                       Total: ${(order.totalAmount || 0).toFixed(2)}
                     </div>
+                    <button 
+                      className="bg-blue-500 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-600"
+                      onClick={() => repurchaseItems(order.items)}
+                    >
+                      Repurchase Order
+                    </button>
                   </div>
                 </div>
               ))
