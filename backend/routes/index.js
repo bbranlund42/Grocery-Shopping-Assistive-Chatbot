@@ -51,6 +51,9 @@ const FoodSchema = new Schema({
     },
     location: {
         type: String
+    },
+    discount: {
+        type: Number
     }
 }); 
 
@@ -67,9 +70,9 @@ app.get('/findAllProducts', async (req, res) => {
 
 app.post('/addNewFood', async (req,res) => {
     try{        
-        const {product_id, product_name, category, quantity, price, description, location} = req.body;
+        const {product_id, product_name, category, quantity, price, description, location, discount} = req.body;
         //const {product_id, product_name, category, quantity, price, description, location} = req.query;
-        const newFood = new Food({product_id, product_name, category, quantity, price, description, location});
+        const newFood = new Food({product_id, product_name, category, quantity, price, description, location, discount});
 
         const embedding = await embedding_model.embedQuery(newFood['product_name']); 
         const result = await Food.updateOne(
@@ -84,7 +87,8 @@ Category: ${newFood['category']}
 Quantity: ${newFood['quantity']}
 Price: ${newFood['price']}
 Description: ${newFood['description']}
-Location: ${newFood['location']}`
+Location: ${newFood['location']}
+Discount: ${newFood['discount']}`
         ); 
         const res2 = await Food.updateOne(
             {'_id': newFood['_id']}, 
@@ -152,5 +156,34 @@ app.post('/updateInventory', async (req, res) => {
   }
 });
   
+
+// need to find out if the discount can by updated though here
+app.put('/updateDiscount', async (req, res) => {
+    try {
+        const { product_id, discount } = req.body;
+        if (!product_id || !discount) {
+            return res.status(400).json({ error: "Missing required fields: product_id or discount" });
+        }
+        
+        const updatedFood = await Food.findOneAndUpdate(
+            { product_id },
+            { discount },
+            { new: true } // Return the updated document
+        );
+        
+        if (!updatedFood) {
+            return res.status(404).json({ error: "Food item not found" });
+        }
+        
+        res.json({ message: "Discount updated successfully!", data: updatedFood });
+    } catch (error) {
+        console.error("Error updating discount:", error);
+        res.status(500).json({ error: error.message });
+    }
+});
+// add discount to add item api call so it can be vecotrized
+// need to postman call to test discount, bens bread is the only one with a discount currently
+// update ui to dev page
+// need to add discount section to ui
   
   app.listen(PORT);

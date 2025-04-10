@@ -25,7 +25,6 @@ export default function HomePage() {
         {/* Overlay to improve text readability */}
         <div className="absolute inset-0 bg-black/30"></div>
       </div>
-
       {/* Content Container */}
       <div className="relative h-1/2 flex flex-col items-center justify-center text-center px-4">
         <h1 className="text-4xl font-bold text-white mb-2">

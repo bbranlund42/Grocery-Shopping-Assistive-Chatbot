@@ -4,6 +4,7 @@ import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from "react-router-dom";
+import DiscountWheel from '../DiscountCarousel/discountCar.js';
 
 // Import images
 import fruitImage from '../Display/Icons/fruitImage.jpg';
@@ -101,6 +102,8 @@ export default function Display() {
     );
 
     return (
+        <>
+            <DiscountWheel />
         <div id="products" className="w-full w-7xl mx-auto px-4 py-8 bg-slate-200">
             {/* Search and Filters */}
             <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
@@ -197,6 +200,7 @@ export default function Display() {
                 theme="light"
             />
         </div>
+        </>
     );
 };
 //newly implemented code
