@@ -73,6 +73,7 @@ app.post('/addNewFood', async (req,res) => {
         const {product_id, product_name, category, quantity, price, description, location, discount} = req.body;
         //const {product_id, product_name, category, quantity, price, description, location} = req.query;
         const newFood = new Food({product_id, product_name, category, quantity, price, description, location, discount});
+        const savedFood = await newFood.save();
 
         const embedding = await embedding_model.embedQuery(newFood['product_name']); 
         const result = await Food.updateOne(
