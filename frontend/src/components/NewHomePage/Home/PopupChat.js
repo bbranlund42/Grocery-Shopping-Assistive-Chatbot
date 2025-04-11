@@ -62,12 +62,15 @@ const PopupChatbot = ({ isTriggered = false, onClose }) => {
     };
 
     try {
-      const lastUserMessage = history
-        .filter((msg) => msg.role === "user")
-        .pop().text;
+      const historyWindow = history.slice(-10); // Last 10 messages total (user + bot)
+      const contextPrompt = historyWindow
+        .map(
+          (msg) => `${msg.role === "user" ? "User" : "Assistant"}: ${msg.text}`
+        )
+        .join("\n");
 
       const response = await axios.post("http://localhost:5001/invoke-model", {
-        prompt: lastUserMessage,
+        prompt: contextPrompt,
       });
 
       const apiResponse = response.data.generation;
@@ -114,28 +117,18 @@ const PopupChatbot = ({ isTriggered = false, onClose }) => {
     const userMessage = inputRef.current.value.trim();
     if (!userMessage) return;
     inputRef.current.value = "";
-
-    // Set isInView to false when first message is sent
     setIsInView(false);
 
-    // Update chat history with the user's message
-    setChatHistory((history) => [
-      ...history,
-      { role: "user", text: userMessage },
-    ]);
+    const userEntry = { role: "user", text: userMessage };
+    setChatHistory((prev) => [...prev, userEntry]);
+    setFullChatHistory((prev) => [...prev, userEntry]);
 
-    // add a "Thinking..." Placeholder for the bots message
     setTimeout(() => {
-      setChatHistory((history) => [
-        ...history,
-        { role: "model", text: "Thinking..." },
-      ]);
+      const thinkingEntry = { role: "model", text: "Thinking..." };
+      setChatHistory((prev) => [...prev, thinkingEntry]);
+      setFullChatHistory((prev) => [...prev, thinkingEntry]);
 
-      // Call the function to generate bot's response
-      generateBotResponse([
-        ...chatHistory,
-        { role: "user", text: userMessage },
-      ]);
+      generateBotResponse([...fullChatHistory, userEntry]);
     }, 600);
   };
 

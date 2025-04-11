@@ -26,6 +26,41 @@ function JustChatting() {
     }
   }, [chatHistory]);
 
+  const refreshChatHistory = async () => {
+    try {
+      const historyResponse = await axios.get(
+        `http://localhost:5001/chat-history/${userId}`
+      );
+
+      if (historyResponse.data?.messages?.length > 0) {
+        const processedMessages = historyResponse.data.messages.map(
+          (message) => {
+            if (
+              message.role === "assistant" &&
+              typeof message.text === "string"
+            ) {
+              try {
+                const jsonObj = JSON.parse(message.text);
+                if (jsonObj?.answer) {
+                  return { ...message, text: jsonObj.answer };
+                }
+              } catch (e) {}
+            }
+            return message;
+          }
+        );
+
+        const lastMessages = processedMessages.slice(-MAX_DISPLAYED_MESSAGES);
+        setFullChatHistory(processedMessages);
+        setChatHistory(lastMessages);
+      } else {
+        setChatHistory([]);
+      }
+    } catch (error) {
+      console.error("Error refreshing chat history:", error);
+    }
+  };
+
   useEffect(() => {
     const fetchChatHistory = async () => {
       try {
@@ -37,7 +72,7 @@ function JustChatting() {
           const processedMessages = historyResponse.data.messages.map(
             (message) => {
               if (
-                message.role === "model" &&
+                message.role === "Assistant" &&
                 typeof message.text === "string"
               ) {
                 try {
@@ -87,23 +122,26 @@ function JustChatting() {
           responseText = rawResponse.answer;
         }
 
-        const newEntry = { role: "model", text: responseText };
+        const newEntry = { role: "assistant", text: responseText };
         setFullChatHistory((prev) => [
           ...prev.filter((msg) => msg.text !== "Thinking..."),
           newEntry,
         ]);
 
-        return [...filteredHistory, newEntry].slice(-MAX_DISPLAYED_MESSAGES);
+        return [...filteredHistory, newEntry];
       });
     };
 
     try {
-      const lastUserMessage = history
-        .filter((msg) => msg.role === "user")
-        .pop().text;
+      const historyWindow = history.slice(-10); // Last 10 messages total (user + bot)
+      const contextPrompt = historyWindow
+        .map(
+          (msg) => `${msg.role === "user" ? "User" : "Assistant"}: ${msg.text}`
+        )
+        .join("\n");
 
       const response = await axios.post("http://localhost:5001/invoke-model", {
-        prompt: lastUserMessage,
+        prompt: contextPrompt,
       });
 
       const apiResponse = response.data.generation;
@@ -139,9 +177,9 @@ function JustChatting() {
   const ChatMessage = ({ chat }) => (
     <div
       className={`message ${
-        chat.role === "model" ? "bot" : "user"
+        chat.role === "Assistant" ? "Assistant" : "user"
       }-message flex break-words whitespace-pre-line p-2 mt-2 mb-2 flex-col max-w-90 rounded-tl-xl rounded-tr-xl ${
-        chat.role === "model"
+        chat.role === "assistant"
           ? "self-start bg-slate-300 rounded-br-xl rounded-bl-sm text-black mr-20"
           : "self-end bg-blue-500 rounded-bl-xl rounded-br-sm text-white ml-20"
       }`}
@@ -158,7 +196,7 @@ function JustChatting() {
   }) => {
     const inputRef = useRef();
 
-    const handleFormSubmit = (e) => {
+    const handleFormSubmit = async (e) => {
       e.preventDefault();
       const userMessage = inputRef.current.value.trim();
       if (!userMessage) return;
@@ -166,15 +204,20 @@ function JustChatting() {
       setIsInView(false);
 
       const userEntry = { role: "user", text: userMessage };
+
+      // ✅ Add only to visible messages
       setChatHistory((prev) => [...prev, userEntry]);
-      setFullChatHistory((prev) => [...prev, userEntry]);
 
-      setTimeout(() => {
-        const thinkingEntry = { role: "model", text: "Thinking..." };
+      setTimeout(async () => {
+        const thinkingEntry = { role: "assistant", text: "Thinking..." };
         setChatHistory((prev) => [...prev, thinkingEntry]);
-        setFullChatHistory((prev) => [...prev, thinkingEntry]);
 
-        generateBotResponse([...fullChatHistory, userEntry]);
+        try {
+          await generateBotResponse([...chatHistory, userEntry]);
+          await refreshChatHistory(); // ✅ Refresh full history from backend after assistant responds
+        } catch (err) {
+          console.error("Error generating response:", err);
+        }
       }, 600);
     };
 

@@ -65,7 +65,7 @@ def log_chat_to_db(user_id, user_message, bot_response):
                 "messages": {
                     "$each": [
                         {"role": "user", "text": user_message, "timestamp": timestamp},
-                        {"role": "model", "text": bot_response, "timestamp": timestamp}
+                        {"role": "assistant", "text": bot_response, "timestamp": timestamp}
                     ]
                 }
             }
@@ -177,21 +177,30 @@ async def invoke_model(request: PromptRequest):
     log_message("User", user_query)
     user_id = "1111"
     
-    # Retrieve relevant documents from the vector database
     try:
         response = qa_chain.invoke({"query": user_query})
         retrieved_info = response["result"]
-        # log_langchain_response("langchain",retrieved_info)
-        log_message("Bot", retrieved_info)
+        log_message("Assistant", retrieved_info)
         
-        # used to log th echat history in the database
-        log_chat_to_db(user_id, user_query, retrieved_info)
+        # Extract only the most recent user message from the prompt
+        last_user_message = user_query.strip().split("\n")[-1]
+        if last_user_message.lower().startswith("user:"):
+            last_user_message = last_user_message[5:].strip()
+
+        # Extract just the assistant's answer
+        try:
+            parsed = json.loads(retrieved_info)
+            answer_only = parsed.get("answer", retrieved_info)
+        except Exception:
+            answer_only = retrieved_info
+
+        log_chat_to_db(user_id, last_user_message, answer_only)
         
         return {"generation": retrieved_info}
     except Exception as e:
-        retrieved_info = ""  # Fallback if retrieval fails
         log_message("System", f"Vector DB retrieval error: {str(e)}")
         raise HTTPException(status_code=500, detail="Error processing request")
+
 
 # function for Chat History
 @app.get("/chat-history/{user_id}")
