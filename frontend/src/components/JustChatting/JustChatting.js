@@ -13,7 +13,7 @@ function JustChatting() {
   const [isLoading, setIsLoading] = useState(true);
   const [userId, setUserId] = useState("1111");
   const navigate = useNavigate();
-  const MAX_DISPLAYED_MESSAGES = 10;
+  const MAX_DISPLAYED_MESSAGES = 15;
   const [prompt, setPrompt] = useState("");
   const [response, setResponse] = useState("");
   const [isInView, setIsInView] = useState(true);
@@ -50,7 +50,7 @@ function JustChatting() {
           }
         );
 
-        const lastMessages = processedMessages.slice(-MAX_DISPLAYED_MESSAGES);
+        const lastMessages = processedMessages;
         setFullChatHistory(processedMessages);
         setChatHistory(lastMessages);
       } else {
@@ -205,7 +205,7 @@ function JustChatting() {
 
       const userEntry = { role: "user", text: userMessage };
 
-      // ✅ Add only to visible messages
+      // Add only to visible messages
       setChatHistory((prev) => [...prev, userEntry]);
 
       setTimeout(async () => {
@@ -214,7 +214,7 @@ function JustChatting() {
 
         try {
           await generateBotResponse([...chatHistory, userEntry]);
-          await refreshChatHistory(); // ✅ Refresh full history from backend after assistant responds
+          await refreshChatHistory(); // Refresh full history from backend after assistant responds
         } catch (err) {
           console.error("Error generating response:", err);
         }
