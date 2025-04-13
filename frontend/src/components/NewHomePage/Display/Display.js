@@ -119,7 +119,7 @@ export default function Display() {
                 </div>
 
                 <div className="flex gap-3 items-center">
-                    <button onClick={() => navigate('/cart')} className="px-4 py-2 flex bg-blue-600 text-white rounded-lg hover:bg-blue-700 gap-2">
+                    <button onClick={() => navigate('/cart')} className="px-4 py-2 flex set-user-text text-white rounded-lg custom-hover gap-2">
                         <ShoppingCart></ShoppingCart> Cart
                     </button>
                 </div>
@@ -180,7 +180,7 @@ export default function Display() {
                         <button
                             onClick={() => addToCart(selectedProduct)}
                             disabled={selectedProduct.quantity === 0}
-                            className="w-full mt-6 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
+                            className="w-full mt-6 px-4 py-2 set-user-text text-white rounded-lg custom-hover disabled:bg-gray-400"
                         >
                             Add {quantity} to Cart
                         </button>
@@ -314,7 +314,7 @@ const Foodlist = ({ filteredProducts, setSelectedProduct, addToCart }) => {
                                         addToCart(food);
                                     }}
                                     disabled={food.quantity === 0}
-                                    className="mt-2 w-32 flex items-center justify-center bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 
+                                    className="mt-2 w-32 flex items-center justify-center set-user-text text-white py-2 rounded-lg custom-hover 
                                 transition-all duration-200 transform active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50
                                 disabled:bg-gray-400 disabled:cursor-not-allowed"
                                 >

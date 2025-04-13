@@ -181,7 +181,7 @@ function JustChatting() {
       }-message flex break-words whitespace-pre-line p-2 mt-2 mb-2 flex-col max-w-90 rounded-tl-xl rounded-tr-xl ${
         chat.role === "assistant"
           ? "self-start bg-slate-300 rounded-br-xl rounded-bl-sm text-black mr-20"
-          : "self-end bg-blue-500 rounded-bl-xl rounded-br-sm text-white ml-20"
+          : "self-end set-user-text rounded-bl-xl rounded-br-sm text-white ml-20"
       }`}
     >
       <p className="message-text ml-3 mr-3">{chat.text}</p>
@@ -237,7 +237,7 @@ function JustChatting() {
           className="message-input bg-slate-200 w-full p-1.5 px-4 rounded-full focus:outline-none"
           required
         />
-        <button className="ml-2 bg-blue-500 h-10 w-10 rounded-full flex items-center justify-center">
+        <button className="ml-2 set-user-text custom-hover h-10 w-10 rounded-full flex items-center justify-center">
           <Send size={20} color="white" />
         </button>
       </form>

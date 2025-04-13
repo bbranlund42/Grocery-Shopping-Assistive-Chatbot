@@ -105,7 +105,7 @@ const ShoppingCartCheckout = ({onUpdateCart}) => {
         >
           ⬅
         </button>
-        <div className="text-blue-600 text-2xl font-medium">Shopping Cart</div>
+        <div className="text-blue-400 text-2xl font-medium">Shopping Cart</div>
         <button
           className="bg-blue-400 text-white w-10 h-10 flex items-center justify-center rounded"
           onClick={() => navigate("/")}
@@ -169,7 +169,7 @@ const ShoppingCartCheckout = ({onUpdateCart}) => {
         <div className="mt-4 flex justify-between items-center">
           <div className="font-bold text-xl">Total: ${total.toFixed(2)}</div>
           <button 
-            className="w-1/2 py-3 border-2 bg-blue-500 rounded-lg text-center font-bold hover:bg-blue-600 text-white"
+            className="w-1/2 py-3 border-2 set-user-text rounded-lg text-center font-bold custom-hover text-white"
             disabled={cartItems.length === 0 || isProcessing}
             onClick={handlePayment}
           >

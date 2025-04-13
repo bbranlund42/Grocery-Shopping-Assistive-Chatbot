@@ -158,7 +158,7 @@ const MyTableforSuggest = ({ products }) => {
                                     </TableCell>
                                     <TableCell className="px-2 py-3">
                                         <button
-                                            className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
+                                            className="w-full py-2 set-user-text text-white rounded-lg custom-hover disabled:bg-gray-400"
                                             disabled={product.quantity == 0} onClick={() => addToCart(product)}
                                         >
                                             Add to Cart

@@ -24,3 +24,10 @@ code {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;     /* Firefox */
   }
+
+  .custom-hover:hover {
+    background-color: rgba(0, 112, 173, 1) !important;
+  }
+
+  .set-user-text {
+    background-color: rgba(18, 171, 219, 1) !important;}

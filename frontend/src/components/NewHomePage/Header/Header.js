@@ -83,13 +83,13 @@ export default function Header() {
               ):(
               <>
               <button
-                className="text-gray-600 hover:text-gray-900 px-3 py-1 text-sm font-medium"
+                className="text-gray-600 hover:bg-slate-300 px-3 py-1 text-sm font-medium rounded-md"
                 onClick={() => navigate("/LoginPage")}
               >
                 Sign in
               </button>
               <button
-                className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700"
+                className="set-user-text  text-white px-4 py-2 rounded-md text-sm font-medium custom-hover"
                 onClick={() => navigate("/CreateAccount")}
               >
                 Register
