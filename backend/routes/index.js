@@ -68,6 +68,59 @@ app.get('/findAllProducts', async (req, res) => {
     }
   });
 
+app.get('/findOne', async (req, res) => {
+  try {
+    const item = req.query.product_id; 
+    console.log(req.query); 
+    console.log(item); 
+    const info = await Food.findOne({product_id: item});
+    res.json(info); 
+  } catch (error) {
+    res.status(500).json({ error: error.message})
+  }
+
+}); 
+
+app.post('/updateAnItem', async (req, res) => {
+  try{
+    const {id, name, cat, quant, p, desc, loc} = req.body; 
+    const text = (`
+Product ID: ${req.body.product_id}
+Product Name: ${req.body.product_name}
+Category: ${req.body.category}
+Quantity: ${req.body.quantity}
+Price: ${req.body.price}
+Description: ${req.body.description}
+Location: ${req.body.location}`
+    ); 
+    console.log(req.body.product_name); 
+    console.log(text);  
+    const result = await Food.updateOne(
+      {product_id: req.body.product_id }, 
+      {
+        product_name: req.body.product_name, 
+        category: req.body.category,
+        quantity: req.body.quantity,
+        price: req.body.price,
+        descirption: req.body.description,
+        location: req.body.location,
+      }
+
+      ); 
+      const res2 = await Food.updateOne(
+        {product_id: req.body.product_id}, 
+        {$set: {'text': text}}, 
+        {strict: false}
+    ); 
+      console.log(result); 
+      console.log('joe'); 
+      res.status(20).json({message: 'joe'})
+
+  } catch (error){
+    res.status(500).json({ error: error.message})
+  }
+}); 
+
 app.post('/addNewFood', async (req,res) => {
     try{        
         const {product_id, product_name, category, quantity, price, description, location, discount} = req.body;

@@ -14,6 +14,7 @@ import NewHomePage from "./components/NewHomePage/Home/Home";
 import reportWebVitals from "./reportWebVitals";
 import Order_History from "./components/Order_history/Order_History";
 import DevPage from "./components/DevPage/devPage"; 
+import UpdatePage from "./components/DevPage/updatePage"; 
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
@@ -33,6 +34,7 @@ root.render(
         <Route path="JustChatting" element={<JustChatting />} />
         <Route path= "Order_History" element={<Order_History/>}/>
         <Route path="DevPage" element={<DevPage/>}/>
+        <Route path="updatePage" element={<UpdatePage/>}/>
       </Routes>
     </BrowserRouter>
   </React.StrictMode>
