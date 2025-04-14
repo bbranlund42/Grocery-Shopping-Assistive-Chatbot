@@ -70,10 +70,11 @@ app.get('/findAllProducts', async (req, res) => {
 
 app.get('/findOne', async (req, res) => {
   try {
+    // for some reason, the get request really did not like req.body so I used req.query using the 
     const item = req.query.product_id; 
-    console.log(req.query); 
-    console.log(item); 
+    // info will return an object 
     const info = await Food.findOne({product_id: item});
+    // send the object back to frontend to read 
     res.json(info); 
   } catch (error) {
     res.status(500).json({ error: error.message})
@@ -83,7 +84,8 @@ app.get('/findOne', async (req, res) => {
 
 app.post('/updateAnItem', async (req, res) => {
   try{
-    const {id, name, cat, quant, p, desc, loc} = req.body; 
+    // everything sent will be within req.body._____
+    // define text that will be used later
     const text = (`
 Product ID: ${req.body.product_id}
 Product Name: ${req.body.product_name}
@@ -93,8 +95,7 @@ Price: ${req.body.price}
 Description: ${req.body.description}
 Location: ${req.body.location}`
     ); 
-    console.log(req.body.product_name); 
-    console.log(text);  
+    // this will update all the fields 
     const result = await Food.updateOne(
       {product_id: req.body.product_id }, 
       {
@@ -104,18 +105,24 @@ Location: ${req.body.location}`
         price: req.body.price,
         descirption: req.body.description,
         location: req.body.location,
+        discount: req.body.discount
       }
-
+      // update the text embedding
       ); 
       const res2 = await Food.updateOne(
         {product_id: req.body.product_id}, 
         {$set: {'text': text}}, 
         {strict: false}
     ); 
-      console.log(result); 
-      console.log('joe'); 
-      res.status(20).json({message: 'joe'})
+    // update the number embedding
+    const embedding = await embedding_model.embedQuery(req.body.product_name); 
+    const embed = await Food.updateOne(
+      {product_id: req.body.product_id}, 
+      {$set: {'embedding': embedding} }, 
+      {strict: false}
+      ); 
 
+      res.status(20).json({message: 'joe'})
   } catch (error){
     res.status(500).json({ error: error.message})
   }
