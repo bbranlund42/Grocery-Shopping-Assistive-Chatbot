@@ -82,6 +82,16 @@ app.get('/findOne', async (req, res) => {
 
 }); 
 
+app.get('/findByDiscount' ,async (req, res) =>{
+  try{
+    const item = await Food.find({discount: { $gt: 0 }})
+    console.log(item)
+    res.json(item)
+  } catch (error){
+    res.status(500).json({ error: error.message})
+  }
+}); 
+
 app.post('/updateAnItem', async (req, res) => {
   try{
     // everything sent will be within req.body._____
