@@ -187,7 +187,7 @@ async def get_chat_history(user_id: str):
 # invoking the LLM
 # to limit the requests adjust below. 1/3seconds means 1 equest per 3 seconds
 @app.post("/invoke-model")
-@limiter.limit("1/8seconds")
+@limiter.limit("1/3seconds")
 async def invoke_model(request: Request, prompt: PromptRequest):
     user_query = prompt.prompt.strip()
     log_message("User", user_query)
