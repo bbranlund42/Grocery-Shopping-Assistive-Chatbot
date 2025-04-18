@@ -11,8 +11,18 @@ from langchain_aws import BedrockEmbeddings, BedrockLLM
 from langchain_community.vectorstores import MongoDBAtlasVectorSearch
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+from fastapi.responses import JSONResponse
+
 
 app = FastAPI()
+
+# fhese are used for rate limiting
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Add this middleware to the app
 app.add_middleware(
@@ -173,9 +183,13 @@ async def get_chat_history(user_id: str):
         raise HTTPException(status_code=404, detail="No chat history found.")
     return {"messages": chat["messages"]}
 
+
+# invoking the LLM
+# to limit the requests adjust below. 1/3seconds means 1 equest per 3 seconds
 @app.post("/invoke-model")
-async def invoke_model(request: PromptRequest):
-    user_query = request.prompt.strip()
+@limiter.limit("1/8seconds")
+async def invoke_model(request: Request, prompt: PromptRequest):
+    user_query = prompt.prompt.strip()
     log_message("User", user_query)
     user_id = "1111"
     

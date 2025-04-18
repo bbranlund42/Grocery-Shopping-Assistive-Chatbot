@@ -17,6 +17,7 @@ function JustChatting() {
   const [prompt, setPrompt] = useState("");
   const [response, setResponse] = useState("");
   const [isInView, setIsInView] = useState(true);
+  const [rateLimitMessage, setRateLimitMessage] = useState("");
 
   const chatBodyRef = useRef(null);
 
@@ -144,6 +145,9 @@ function JustChatting() {
         prompt: contextPrompt,
       });
 
+      // Clear any old rate limit warnings on success
+      setRateLimitMessage("");
+
       const apiResponse = response.data.generation;
       setTableVersion((prev) => prev + 1);
 
@@ -169,7 +173,19 @@ function JustChatting() {
 
       return apiResponse;
     } catch (error) {
-      updateHistory("Sorry, something went wrong.");
+      if (error.response && error.response.status === 429) {
+        // Handle rate limit error
+        const msg =
+          error.response.data?.error ||
+          "Too many requests. Please wait a few seconds.";
+        setRateLimitMessage(msg);
+        setTimeout(() => setRateLimitMessage(""), 3000);
+
+        updateHistory(msg, msg); // This line removes "Thinking..." and replaces with message
+      } else {
+        updateHistory("Sorry, something went wrong.");
+      }
+
       throw error;
     }
   };
@@ -324,7 +340,12 @@ function JustChatting() {
               ))
             )}
           </div>
-
+          {/*this is to dosplay an error message for the user when they hit the rate limit */}
+          {rateLimitMessage && (
+            <div className="text-red-600 text-sm text-center mt-2">
+              {rateLimitMessage}
+            </div>
+          )}
           <div className="flex chat-footer justify-center items-center bottom-0 w-full mt-5 mb-5">
             <ChatForm
               chatHistory={chatHistory}

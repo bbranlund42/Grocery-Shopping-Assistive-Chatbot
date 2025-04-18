@@ -54,6 +54,7 @@ pymongo
 langchain
 langchain-community
 langchain-aws
+slowapi
 ```
 
 #### JavaScript Dependencies:
