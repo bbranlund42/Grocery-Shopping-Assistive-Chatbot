@@ -82,6 +82,16 @@ app.get('/findOne', async (req, res) => {
 
 }); 
 
+app.get('/findByDiscount' ,async (req, res) =>{
+  try{
+    const item = await Food.find({discount: { $gt: 0 }})
+    console.log(item)
+    res.json(item)
+  } catch (error){
+    res.status(500).json({ error: error.message})
+  }
+}); 
+
 app.post('/updateAnItem', async (req, res) => {
   try{
     // everything sent will be within req.body._____
@@ -93,7 +103,8 @@ Category: ${req.body.category}
 Quantity: ${req.body.quantity}
 Price: ${req.body.price}
 Description: ${req.body.description}
-Location: ${req.body.location}`
+Location: ${req.body.location}
+Discount: ${req.body.discount}`
     ); 
     // this will update all the fields 
     const result = await Food.updateOne(
@@ -103,7 +114,7 @@ Location: ${req.body.location}`
         category: req.body.category,
         quantity: req.body.quantity,
         price: req.body.price,
-        descirption: req.body.description,
+        description: req.body.description,
         location: req.body.location,
         discount: req.body.discount
       }
