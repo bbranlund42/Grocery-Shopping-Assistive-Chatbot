@@ -20,6 +20,10 @@ const connectToMongo = async () => {
 connectToMongo();
 
 const OrderHistorySchema = new mongoose.Schema({
+    userId: {
+        type: String,  // Simple string ID
+        required: true
+    },
     items: [{
         product_id: {
             type: String,
@@ -52,10 +56,11 @@ const OrderHistorySchema = new mongoose.Schema({
 
 const OrderHistory = mongoose.model('orderhistory', OrderHistorySchema, 'orderhistory');
 
-// GET route to fetch previous orders
+// GET route to fetch previous orders for specific user
 app.get('/Order_history', async (req, res) => {
     try {
-        const orders = await OrderHistory.find().sort({ 'items.orderDate': -1 });
+        const userId = req.query.userId || 'single_user_id';  // Default for backward compatibility
+        const orders = await OrderHistory.find({ userId }).sort({ 'items.orderDate': -1 });
         res.json({ Historic_Items: orders });
     } catch (error) {
         console.error('Error fetching order history:', error);
@@ -63,10 +68,15 @@ app.get('/Order_history', async (req, res) => {
     }
 });
 
+
 // POST route to save new order history
 app.post('/Order_history', async (req, res) => {
     try {
-        const { Historic_Items } = req.body;
+        const { Historic_Items, userId } = req.body;
+        
+        if (!userId) {
+            return res.status(400).json({ error: 'userId is required' });
+        }
         
         if (!Historic_Items || !Array.isArray(Historic_Items)) {
             return res.status(400).json({ error: 'Invalid order data' });
@@ -76,8 +86,9 @@ app.post('/Order_history', async (req, res) => {
         const totalAmount = Historic_Items.reduce((total, item) => 
             total + (item.price * item.quantity), 0);
 
-        // Save new order
+        // Save new order - include userId here
         const newOrder = new OrderHistory({ 
+            userId: userId,  // Include userId in the new order
             items: Historic_Items, 
             totalAmount 
         });
