@@ -5,7 +5,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start:backend": "concurrently \"node routes/index.js\" \"node routes/User_cart.js\"",
-    "start:all": "concurrently \"cd routes && node index.js\" \"cd routes && node User_cart.js\" \"cd routes && node order_history.js\" \"cd ai && uvicorn RAGfastapp:app --host 0.0.0.0 --port 5001 --reload\" \"cd ../frontend && npm start\""
+    "start:all": "concurrently \"cd routes && node index.js\" \"cd routes && node User_cart.js\" \"cd routes && node order_history.js\" \"cd routes && node User.js\" \"cd ai && uvicorn RAGfastapp:app --host 0.0.0.0 --port 5001 --reload\" \"cd ../frontend && npm start\""
   },
   "keywords": [],
   "author": "",
