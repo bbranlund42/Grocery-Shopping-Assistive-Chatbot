@@ -1,21 +1,51 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {ArrowLeft} from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import axios from "axios";
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const[username, setUsername] = React.useState("");
-  const[password, setPassword] = React.useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-  const handleSignIn = () => {
-    if (username.trim() === ''){
-      alert("Please enter a valid username");
+  const handleSignIn = async (e) => {
+    e.preventDefault();
+    setError("");
+    
+    if (username.trim() === '') {
+      setError("Please enter a valid username");
       return;
     }
 
-    localStorage.setItem('username', username);
-
-    navigate("/");
+    if (!password) {
+      setError("Please enter your password");
+      return;
+    }
+  
+    try {
+      // Update the port to 5000 where your User service is running
+      const response = await axios.post("http://localhost:5000/login", {
+        // Change the field name from 'username' to 'email' to match your backend
+        email: username,
+        password
+      });
+  
+      // Update to match your backend response structure
+      if (response.data.userId) {
+        // Save user information in localStorage
+        localStorage.setItem("userId", response.data.userId);
+        localStorage.setItem("username", username); // Store the username/email
+        
+        console.log("Login successful, user ID:", response.data.userId);
+        navigate("/");
+      } else {
+        setError("Invalid username or password");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      setError("Login failed. Please try again.");
+    }
   };
 
   return (
@@ -24,7 +54,14 @@ const LoginPage = () => {
         <div className="text-center mb-4">
           <img src={require('./Capgemini-Logo.png')} alt="Capgemini" /> 
         </div>
-        <form>
+        
+        {error && (
+          <div className="p-3 mb-4 bg-red-100 border border-red-400 text-red-700 rounded text-sm">
+            {error}
+          </div>
+        )}
+        
+        <form onSubmit={handleSignIn}>
           <div className="mb-4">
             <label
               htmlFor="email"
@@ -71,9 +108,8 @@ const LoginPage = () => {
             </a>
           </div>
           <button
-            type="button"
+            type="submit"
             className="w-full py-2 px-4 bg-blue-500 text-white font-medium rounded-md hover:bg-blue-600"
-            onClick={handleSignIn}
           >
             Sign in
           </button>

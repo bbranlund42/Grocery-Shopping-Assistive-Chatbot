@@ -58,49 +58,62 @@ const UserCartSchema = new Schema({
 
 const UserCart = mongoose.model('UserCart', UserCartSchema);
 
-// this is the Route directory for Cart Management
-app.get('/cart', async (req, res) => {
+// Middleware to verify userId exists
+const requireValidUserId = (req, res, next) => {
+    const userId = req.query.userId || req.body.userId;
+    
+    if (!userId) {
+        return res.status(400).json({ error: "User ID is required" });
+    }
+    
+    next();
+};
+
+// Route directory for Cart Management
+app.get('/cart', requireValidUserId, async (req, res) => {
     try {
-        const userId = 'single_user_id';
+        const { userId } = req.query;
         const cart = await UserCart.findOne({ userId });
-        res.json(cart || { items: [], total: 0 });
+        
+        if (!cart) {
+            // Create a new empty cart for this user
+            return res.json({ userId, items: [], total: 0 });
+        }
+        
+        res.json(cart);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ error: error.message });
     }
 });
 
-//add is where the data will be sent, req contains data sent by the client, res is the response
-app.post('/cart/add', async (req, res) => {
+app.post('/cart/add', requireValidUserId, async (req, res) => {
     try {
-      //extract productID and quanitity form the request body
-        const { productId, quantity } = req.body;
-        const userId = 'single_user_id'; //Hardcoded userID, this is just for testing with one user
+        const { productId, quantity, name, price, userId } = req.body;
 
-        //find user cart in database based on UserID
+        if (!productId || !quantity || !name || price === undefined) {
+            return res.status(400).json({ error: "Missing product information" });
+        }
+
         let cart = await UserCart.findOne({ userId });
 
-        //if cart doesnt exist, create a new cart
         if (!cart) {
-            cart = new UserCart({ userId, 
-              items: [] //initialize with no items 
-              ,total: 0 //initialize price as 0
+            cart = new UserCart({ 
+                userId, 
+                items: [],
+                total: 0
             });
         }
 
-        //check if the product already exists in the cart
         const existingItemIndex = cart.items.findIndex(item => item.productId === productId);
-
         
-        if (existingItemIndex > -1) //if the prudct exists then increase the quanitity
-            {
+        if (existingItemIndex > -1) {
             cart.items[existingItemIndex].quantity += quantity;
         } else {
-            //if no products exists, then PUSH it to the cart
             cart.items.push({
-                productId, //stores the product ID
-                name: req.body.name, //stores teh product name
-                quantity, //stores quanitity
-                price: req.body.price //stores price
+                productId,
+                name,
+                quantity,
+                price
             });
         }
 
@@ -108,46 +121,41 @@ app.post('/cart/add', async (req, res) => {
         cart.total = cart.items.reduce((total, item) => 
             total + (item.price * item.quantity), 0);
 
-        //saves teh updated cart
         await cart.save();
-        //responds with the updated cart data
         res.json(cart);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ error: error.message });
     }
 });
 
-app.post('/add/cart/table', async (req, res) => {
+app.post('/add/cart/table', requireValidUserId, async (req, res) => {
     try {
-      //extract productID and quanitity form the request body
-        const { productId, quantity } = req.body;
-        const userId = 'single_user_id'; //Hardcoded userID, this is just for testing with one user
+        const { productId, quantity, name, price, userId } = req.body;
 
-        //find user cart in database based on UserID
+        if (!productId || !quantity || !name || price === undefined) {
+            return res.status(400).json({ error: "Missing product information" });
+        }
+
         let cart = await UserCart.findOne({ userId });
 
-        //if cart doesnt exist, create a new cart
         if (!cart) {
-            cart = new UserCart({ userId, 
-              items: [] //initialize with no items 
-              ,total: 0 //initialize price as 0
+            cart = new UserCart({ 
+                userId, 
+                items: [],
+                total: 0
             });
         }
 
-        //check if the product already exists in the cart
         const existingItemIndex = cart.items.findIndex(item => item.productId === productId);
-
         
-        if (existingItemIndex > -1) //if the prudct exists then increase the quanitity
-            {
+        if (existingItemIndex > -1) {
             cart.items[existingItemIndex].quantity += quantity;
         } else {
-            //if no products exists, then PUSH it to the cart
             cart.items.push({
-                productId, //stores the product ID
-                name: req.body.name, //stores teh product name
-                quantity, //stores quanitity
-                price: req.body.price //stores price
+                productId,
+                name,
+                quantity,
+                price
             });
         }
 
@@ -155,32 +163,31 @@ app.post('/add/cart/table', async (req, res) => {
         cart.total = cart.items.reduce((total, item) => 
             total + (item.price * item.quantity), 0);
 
-        //saves teh updated cart
         await cart.save();
-        //responds with the updated cart data
         res.json(cart);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ error: error.message });
     }
 });
 
-//this is the directory for the remove feature
-app.post('/cart/remove', async (req, res) => {
+app.post('/cart/remove', requireValidUserId, async (req, res) => {
     try {
-        const { productId } = req.body;
-        const userId = 'single_user_id';
+        const { productId, userId } = req.body;
+
+        if (!productId) {
+            return res.status(400).json({ error: "Product ID is required" });
+        }
 
         let cart = await UserCart.findOne({ userId });
 
         if (!cart) {
-            return res.status(404).json({ message: 'Cart not found' });
+            return res.status(404).json({ error: "Cart not found" });
         }
 
-        //searches the cart.items array to find the item that matching the given Product iD
         const itemIndex = cart.items.findIndex(item => item.productId === productId);
 
         if (itemIndex === -1) {
-            return res.status(404).json({ message: 'Product not in cart' });
+            return res.status(404).json({ error: "Product not in cart" });
         }
 
         // Remove the item completely
@@ -192,15 +199,15 @@ app.post('/cart/remove', async (req, res) => {
         await cart.save();
         res.status(200).json(cart);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ error: error.message });
     }
 });
 
-
-app.post('/cart/update', async (req, res) => {
+app.post('/cart/update', requireValidUserId, async (req, res) => {
     try {
-        const { productId, quantity } = req.body;
-        const userId = 'single_user_id';
+        const { productId, quantity, userId } = req.body;
+
+        console.log('Update request received:', { productId, quantity, userId });
 
         if (!productId || quantity === undefined) {
             return res.status(400).json({ error: "Missing required fields: productId or quantity" });
@@ -208,15 +215,20 @@ app.post('/cart/update', async (req, res) => {
 
         // Find the user's cart
         let cart = await UserCart.findOne({ userId });
+        console.log('Cart found:', cart ? 'Yes' : 'No');
 
         if (!cart) {
+            console.log('Cart not found for userId:', userId);
             return res.status(404).json({ error: "Cart not found" });
         }
 
         // Find the item in the cart
         const itemIndex = cart.items.findIndex(item => item.productId === productId);
+        console.log('Item index:', itemIndex, 'Looking for productId:', productId);
+        console.log('Available product IDs:', cart.items.map(item => item.productId));
 
         if (itemIndex === -1) {
+            console.log('Product not in cart');
             return res.status(404).json({ error: "Product not in cart" });
         }
 
@@ -239,26 +251,25 @@ app.post('/cart/update', async (req, res) => {
     }
 });
 
-//this is the function thats going to be called to clear the cart of the user after they pay
-app.post('/cart/clear', async (req, res) => {
+app.post('/cart/clear', requireValidUserId, async (req, res) => {
     try {
-      const userId = 'single_user_id';
-      const cart = await UserCart.findOne({ userId });
-      
-      if (!cart) {
-        return res.status(404).json({ message: 'Cart not found' });
-      }
-      
-      cart.items = [];
-      cart.total = 0;
-      await cart.save();
-      
-      res.json({ message: 'Cart cleared successfully', cart });
+        const { userId } = req.body;
+        const cart = await UserCart.findOne({ userId });
+        
+        if (!cart) {
+            return res.status(404).json({ error: "Cart not found" });
+        }
+        
+        cart.items = [];
+        cart.total = 0;
+        await cart.save();
+        
+        res.json({ message: 'Cart cleared successfully', cart });
     } catch (error) {
-      res.status(500).json({ message: error.message });
+        res.status(500).json({ error: error.message });
     }
-  });
-  
+});
+
 // Connect to MongoDB and start server
 connectToMongo();
 mongoose.connection.once('open', () => {

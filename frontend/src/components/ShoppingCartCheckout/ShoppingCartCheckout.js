@@ -9,14 +9,27 @@ const ShoppingCartCheckout = ({onUpdateCart}) => {
   const [total, setTotal] = useState(0);
   //this isProcessing state is used so we dont make double payments or some ish while the current payment is processing, so we use this as a barrier to prevent mistakes during payment
   const [isProcessing, setIsProcessing] = useState(false);
+  const [userId, setUserId] = useState('single_user_id');
+
+  useEffect(() => {
+    // Get the userId from localStorage when component mounts
+    const storedUserId = localStorage.getItem('userId');
+    if (storedUserId) {
+      setUserId(storedUserId);
+    }
+  }, []);
 
   const fetchCart = async () => {
     if (!isProcessing) {
-      const response = await axios.get('http://localhost:4000/cart');
-      setCartItems(response.data.items || []);
-      setTotal(response.data.total || 0);
-      if (onUpdateCart) {
-        onUpdateCart(response.data.items || []);
+      try {
+        const response = await axios.get(`http://localhost:4000/cart?userId=${userId}`);
+        setCartItems(response.data.items || []);
+        setTotal(response.data.total || 0);
+        if (onUpdateCart) {
+          onUpdateCart(response.data.items || []);
+        }
+      } catch (error) {
+        console.error('Error fetching cart:', error);
       }
     }
   };
@@ -25,21 +38,28 @@ const ShoppingCartCheckout = ({onUpdateCart}) => {
     fetchCart();
     const interval = setInterval(fetchCart, 5000);
     return () => clearInterval(interval);
-  }, [isProcessing]);
+  }, [isProcessing, userId]);
 
   const handlePayment = async () => {
     setIsProcessing(true);
     
     try {
+      // Check if user is logged in
+      if (userId === 'single_user_id') {
+        alert('Please log in before checkout');
+        navigate('/login');
+        return;
+      }
+      
       // Update inventory
       await axios.post('http://localhost:3500/updateInventory', {
-        //sets items to items in the cart, hence "cartItems" and send its to update inventory functions
         items: cartItems
       });
 
       // Save the order to order history BEFORE clearing the cart
       // This is the critical change - save the current cart as a new order
       await axios.post('http://localhost:4800/Order_history', {
+        userId: userId,
         Historic_Items: cartItems.map(item => ({
           product_id: item.productId,
           name: item.name,
@@ -49,8 +69,8 @@ const ShoppingCartCheckout = ({onUpdateCart}) => {
         }))
       });
 
-      // this calls the clear endpoint to reset the users cart after they pay
-      await axios.post('http://localhost:4000/cart/clear');
+      // Clear cart with userId
+      await axios.post('http://localhost:4000/cart/clear', { userId });
 
       // Update local state
       setCartItems([]);
@@ -71,26 +91,64 @@ const ShoppingCartCheckout = ({onUpdateCart}) => {
 
   const removeFromCart = async (productId) => {
     if (!isProcessing) {
-      const response = await axios.post('http://localhost:4000/cart/remove', { productId });
-      setCartItems(response.data.items);
-      setTotal(response.data.total);
-      if (onUpdateCart) {
-        onUpdateCart(response.data.items);
+      try {
+        console.log(`Removing product with ID: ${productId}`);
+        
+        // Using POST as specified in the backend
+        const response = await axios.post('http://localhost:4000/cart/remove', { 
+          productId,
+          userId 
+        });
+        
+        console.log('Response after removal:', response.data);
+        
+        // Update local state with the updated cart
+        setCartItems(response.data.items || []);
+        setTotal(response.data.total || 0);
+        
+        if (onUpdateCart) {
+          onUpdateCart(response.data.items || []);
+        }
+      } catch (error) {
+        console.error('Error removing from cart:', error);
+        alert('Failed to remove item. Please try again.');
       }
     }
   };
 
   const updateQuantity = async (productId, newQuantity) => {
     if (!isProcessing) {
-      const response = await axios.post('http://localhost:4000/cart/update', {
-        productId,
-        quantity: newQuantity
-      });
-      
-      setCartItems(response.data.items);
-      setTotal(response.data.total);
-      if (onUpdateCart) {
-        onUpdateCart(response.data.items);
+      try {
+        console.log('Updating product:', productId, 'to quantity:', newQuantity);
+        console.log('User ID:', userId);
+        
+        const requestData = {
+          productId,
+          quantity: newQuantity,
+          userId
+        };
+        console.log('Request data:', requestData);
+        
+        const response = await axios.post('http://localhost:4000/cart/update', requestData);
+        
+        console.log('Response:', response.data);
+        setCartItems(response.data.items);
+        setTotal(response.data.total);
+        if (onUpdateCart) {
+          onUpdateCart(response.data.items);
+        }
+      } catch (error) {
+        console.error('Error updating quantity:', error);
+        console.error('Request that failed:', {
+          productId,
+          quantity: newQuantity,
+          userId
+        });
+        
+        // Try to get more detailed error information
+        if (error.response) {
+          console.error('Error response:', error.response.status, error.response.data);
+        }
       }
     }
   };
@@ -141,7 +199,7 @@ const ShoppingCartCheckout = ({onUpdateCart}) => {
                   <div className="flex items-center space-x-2">
                     <button 
                       className="bg-slate-300 text-white w-6 h-6 rounded-2xl flex items-center justify-center hover:bg-slate-400"
-                      onClick={() => updateQuantity(item.productId, Math.max(0, item.quantity - 1))}
+                      onClick={() => updateQuantity(item.productId, Math.max(1, item.quantity - 1))}
                     >
                       -
                     </button>
@@ -156,6 +214,7 @@ const ShoppingCartCheckout = ({onUpdateCart}) => {
                   <button 
                     className="bg-red-400 text-white p-2 rounded-md hover:bg-red-500"
                     onClick={() => removeFromCart(item.productId)}
+                    aria-label="Remove item"
                   >
                     <Trash2 size={24} />
                   </button>

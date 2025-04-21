@@ -19,8 +19,6 @@ import dairyImage from '../Display/Icons/dairyImage.jpeg';
 import peanutImage from '../Display/Icons/PeytonsPeanutButter.png';
 import jellyImage from '../Display/Icons/JairJelly.png';
 
-
-
 export default function Display() {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedProduct, setSelectedProduct] = useState(null);
@@ -37,7 +35,8 @@ export default function Display() {
 
     const fetchCart = async () => {
         try {
-            const response = await axios.get('http://localhost:4000/cart');
+            const userId = localStorage.getItem('userId') || 'single_user_id';
+            const response = await axios.get(`http://localhost:4000/cart?userId=${userId}`);
             setCart(response.data.items || []);
         } catch (error) {
             console.error('Error fetching cart:', error);
@@ -84,7 +83,7 @@ export default function Display() {
             console.error("Item out of stock");
             return;
         }
-
+    
         try {
             // console.log("Sending to /cart/add:", {
             //     productId: food._id,
@@ -93,26 +92,33 @@ export default function Display() {
             //     quantity,
             //     discount: food.discount
             //     });
+            const userId = localStorage.getItem('userId') || 'single_user_id';
+            
+            // Check if user is logged in
+            if (userId === 'single_user_id' && localStorage.getItem('userId') === null) {
+                // Redirect to login if not logged in
+                toast.warning("Please log in to add items to your cart");
+                navigate('/LoginPage');
+                return;
+            }
+            
             const response = await axios.post("http://localhost:4000/cart/add", {
+                userId: userId,
                 productId: food._id,
                 name: food.product_name,
                 price: food.price,
                 discount: food.discount,
                 quantity: quantity
             });
+            
             setQuantity(1);
             handleCloseModal();
             toast.success("Added " + food.product_name + " to cart");
-            //const cartResponse = await axios.get("http://localhost:3000/cart");
-            //setCart(cartResponse.data);
-            //await fetchFoodItems(); // Refresh stock levels
         } catch (error) {
             toast.error("Error adding to cart");
             console.error("Error adding to cart:", error.response ? error.response.data : error.message);
         }
     };
-
-
 
     const handleCloseModal = () => {
         setSelectedProduct(null);
@@ -225,13 +231,11 @@ export default function Display() {
         </>
     );
 };
-//newly implemented code
+
+// Foodlist component
 const Foodlist = ({ filteredProducts, setSelectedProduct, addToCart }) => {
-    //add another line similiar to foodItems but instead with the cart and iterate through with the .map function and utilizing axios to figure out the food items that are left
     const [foodItems, setFoodItems] = useState([]);
 
-
-    //these should retrieve the quantity from the database located at /data and use the "food.quantity" attribute to determine the stock amount left
     function changeBG(quantity) {
         if (quantity > 0) {
             return "w-full h-64 object cover rounded-md bg-gray-100"
@@ -240,6 +244,7 @@ const Foodlist = ({ filteredProducts, setSelectedProduct, addToCart }) => {
             return "w-full h-64 object-cover rounded-md bg-red-100"
         }
     }
+
     function changeText(quantity) {
         if (quantity > 0) {
             return "text-gray-900 font-medium mt-2"
@@ -289,11 +294,10 @@ const Foodlist = ({ filteredProducts, setSelectedProduct, addToCart }) => {
         axios.get('http://localhost:3500/findAllProducts')
             .then(response => {
                 setFoodItems(response.data);
-                console.log('Current foodItems:', response.data); // Use response.data instead
+                console.log('Current foodItems:', response.data);
             })
             .catch(error => console.error('Error fetching food:', error));
-    }, []); // Empty dependency array to fetch only once on mount
-
+    }, []);
 
     return (
         <>
