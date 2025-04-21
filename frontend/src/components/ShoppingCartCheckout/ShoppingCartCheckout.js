@@ -133,7 +133,7 @@ const ShoppingCartCheckout = ({onUpdateCart}) => {
                   </div>
                   <div>
                     <div className="font-medium">{item.name}</div>
-                    <div className="text-sm text-gray-600">${item.price.toFixed(2)} per unit</div>
+                    <div className="text-sm text-gray-600">${(item.price * ( 1 - item.discount / 100 )).toFixed(2)} per unit</div>
                     <div className="font-bold">${(item.price * item.quantity).toFixed(2)}</div>
                   </div>
                 </div>

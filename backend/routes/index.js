@@ -90,8 +90,7 @@ app.get('/findByDiscount' ,async (req, res) =>{
   } catch (error){
     res.status(500).json({ error: error.message})
   }
-}); 
-
+});
 app.post('/updateAnItem', async (req, res) => {
   try{
     // everything sent will be within req.body._____

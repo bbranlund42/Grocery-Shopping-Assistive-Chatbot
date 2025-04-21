@@ -30,6 +30,7 @@ export default function DevPage() {
 
         const getInfo = async () => {
             try{
+                console.log(info.product_id);
                 const response = await axios.get(`http://localhost:3500/findOne?product_id=${info.product_id}`
                 ); 
                 setInfo({...info, category: response.data.category,
