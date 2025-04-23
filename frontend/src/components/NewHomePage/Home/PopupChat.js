@@ -7,18 +7,20 @@ const PopupChatbot = ({ isTriggered = false, onClose }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [isInView, setIsInView] = useState(true);
-  const [animationState, setAnimationState] = useState('initial');
+  const [animationState, setAnimationState] = useState("initial");
   const chatBodyRef = useRef(null);
   const inputRef = useRef();
+  const MAX_DISPLAYED_MESSAGES = 10;
+  const [fullChatHistory, setFullChatHistory] = useState([]);
 
   // Handle the trigger from parent component
   useEffect(() => {
     if (isTriggered && !isVisible) {
-      setAnimationState('appearing');
+      setAnimationState("appearing");
       setTimeout(() => {
         setIsVisible(true);
         setIsOpen(true);
-        setAnimationState('visible');
+        setAnimationState("visible");
       }, 300); // Animation delay
     }
   }, [isTriggered, isVisible]);
@@ -31,76 +33,69 @@ const PopupChatbot = ({ isTriggered = false, onClose }) => {
   }, [chatHistory]);
 
   const generateBotResponse = async (history) => {
-    // Helper Function to update chat history
-    const updateHistory = (text) => {
-      setChatHistory(prev => {
-        // Remove the "Thinking..." message and add the bot's response
-        return prev.filter(msg => msg.text !== "Thinking...").concat({
-          role: "model",
-          text: text
-        });
+    const updateHistory = (text, rawResponse) => {
+      setChatHistory((prev) => {
+        const filteredHistory = prev.filter(
+          (msg) => msg.text !== "Thinking..."
+        );
+
+        let responseText = text;
+        if (typeof rawResponse === "string") {
+          try {
+            const jsonObj = JSON.parse(rawResponse);
+            if (jsonObj && jsonObj.answer) {
+              responseText = jsonObj.answer;
+            }
+          } catch (e) {}
+        } else if (rawResponse && rawResponse.answer) {
+          responseText = rawResponse.answer;
+        }
+
+        const newEntry = { role: "model", text: responseText };
+        setFullChatHistory((prev) => [
+          ...prev.filter((msg) => msg.text !== "Thinking..."),
+          newEntry,
+        ]);
+
+        return [...filteredHistory, newEntry].slice(-MAX_DISPLAYED_MESSAGES);
       });
     };
 
     try {
-      // Convert history to just the text content
-      const historyString = history.map(({ text }) => text).join('\n');
-      // console.log(historyString);
+      const historyWindow = history.slice(-10); // Last 10 messages total (user + bot)
+      const contextPrompt = historyWindow
+        .map(
+          (msg) => `${msg.role === "user" ? "User" : "Assistant"}: ${msg.text}`
+        )
+        .join("\n");
 
-      // Use Axios to make the POST request to localhost
       const response = await axios.post("http://localhost:5001/invoke-model", {
-        prompt: historyString
+        prompt: contextPrompt,
       });
 
-      // Getting the API response and assigning it to apiResponse
       const apiResponse = response.data.generation;
-      
-      // These are for Debugging
-      // console.log(response)
-      //console.log(apiResponse);
-      // console.log(typeof apiResponse);
 
-      // Parse only for setting state, but keep the returned value as a string
       let responseJSON;
       if (typeof apiResponse === "string") {
         try {
           responseJSON = JSON.parse(apiResponse);
         } catch (error) {
-          console.error("Error parsing JSON:", error);
-          console.error("Raw API Response:", apiResponse);
-          return apiResponse;  // Return the raw string if parsing fails
+          updateHistory(apiResponse, apiResponse);
+          return apiResponse;
         }
       } else {
-        responseJSON = apiResponse;  // Already a JSON object
+        responseJSON = apiResponse;
       }
 
-      // Ensure valid structure before updating state
       if (!responseJSON || !responseJSON.products || !responseJSON.answer) {
-        console.error("Invalid API response format:", responseJSON);
-        return apiResponse;  // Return raw string in case of issues
+        updateHistory(apiResponse, apiResponse);
+        return apiResponse;
       }
-      // Debugging statement
-      // console.log(responseJSON);
+      updateHistory(responseJSON.answer, apiResponse);
 
-      // set table
-      // Update the history with the bot's response
-
-      updateHistory(responseJSON.answer);
-
-      // Debugging
-      // console.log(typeof responseJSON)
-      // console.log(typeof response.data.generation)
-
-
-      // Assuming the response contains the bot's generation
       return apiResponse;
     } catch (error) {
-      console.error("Error invoking model:", error);
-
-      // Update history with an error message if something goes wrong
       updateHistory("Sorry, something went wrong.");
-
-      // Optionally handle or rethrow the error
       throw error;
     }
   };
@@ -122,28 +117,18 @@ const PopupChatbot = ({ isTriggered = false, onClose }) => {
     const userMessage = inputRef.current.value.trim();
     if (!userMessage) return;
     inputRef.current.value = "";
-
-    // Set isInView to false when first message is sent
     setIsInView(false);
 
-    // Update chat history with the user's message
-    setChatHistory((history) => [
-      ...history,
-      { role: "user", text: userMessage },
-    ]);
+    const userEntry = { role: "user", text: userMessage };
+    setChatHistory((prev) => [...prev, userEntry]);
+    setFullChatHistory((prev) => [...prev, userEntry]);
 
-    // add a "Thinking..." Placeholder for the bots message
     setTimeout(() => {
-      setChatHistory((history) => [
-        ...history,
-        { role: "model", text: "Thinking..." },
-      ]);
+      const thinkingEntry = { role: "model", text: "Thinking..." };
+      setChatHistory((prev) => [...prev, thinkingEntry]);
+      setFullChatHistory((prev) => [...prev, thinkingEntry]);
 
-      // Call the function to generate bot's response
-      generateBotResponse([
-        ...chatHistory,
-        { role: "user", text: userMessage },
-      ]);
+      generateBotResponse([...fullChatHistory, userEntry]);
     }, 600);
   };
 
@@ -151,28 +136,48 @@ const PopupChatbot = ({ isTriggered = false, onClose }) => {
   const ChatMessage = ({ chat }) => {
     return (
       <div
-        className={`message ${chat.role === "model" ? "bot" : "user"
-          }-message flex break-words whitespace-pre-line p-2 mt-2 mb-2 flex-col max-w-90 rounded-tl-xl rounded-tr-xl ${chat.role === "model"
+        className={`message ${
+          chat.role === "model" ? "bot" : "user"
+        }-message flex break-words whitespace-pre-line p-2 mt-2 mb-2 flex-col max-w-90 rounded-tl-xl rounded-tr-xl ${
+          chat.role === "model"
             ? "self-start bg-slate-300 rounded-br-xl rounded-bl-sm text-black mr-4"
             : "self-end bg-blue-500 rounded-bl-xl rounded-br-sm text-white ml-4"
-          }`}
+        }`}
       >
         <p className="message-text ml-2 mr-2 text-sm">{chat.text}</p>
       </div>
     );
   };
 
-  if (!isVisible && animationState === 'initial') return null;
+  if (!isVisible && animationState === "initial") return null;
 
   return (
-    <div className={`fixed bottom-4 right-4 z-50 transition-opacity duration-300 ${animationState === 'appearing' ? 'opacity-0 scale-90' : 'opacity-100 scale-100'}`}>
+    <div
+      className={`fixed bottom-4 right-4 z-50 transition-opacity duration-300 ${
+        animationState === "appearing"
+          ? "opacity-0 scale-90"
+          : "opacity-100 scale-100"
+      }`}
+    >
       {/* Chat toggle button */}
-      <button 
+      <button
         onClick={toggleChat}
         className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg flex items-center justify-center transition-transform duration-300 hover:scale-105"
       >
-        {isOpen ? <X size={24} /> : (
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        {isOpen ? (
+          <X size={24} />
+        ) : (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
           </svg>
         )}
@@ -184,14 +189,19 @@ const PopupChatbot = ({ isTriggered = false, onClose }) => {
           {/* Header */}
           <div className="bg-blue-600 text-white p-3 flex justify-between items-center">
             <h3 className="font-medium">Chuck Cartis</h3>
-            <button onClick={handleClose} className="text-white hover:text-gray-200">
+            <button
+              onClick={handleClose}
+              className="text-white hover:text-gray-200"
+            >
               <X size={20} />
             </button>
           </div>
 
           {isInView ? (
             <div className="flex flex-col items-center w-full p-6 h-full justify-center">
-              <h1 className="text-xl font-semibold mb-6">What can I help you with?</h1>
+              <h1 className="text-xl font-semibold mb-6">
+                What can I help you with?
+              </h1>
               <form
                 action="#"
                 className="chat-form flex w-full items-center justify-center border bg-slate-200 border-blue-300 rounded-full p-2 shadow-sm"
@@ -212,7 +222,10 @@ const PopupChatbot = ({ isTriggered = false, onClose }) => {
           ) : (
             <>
               {/* Chat body */}
-              <div ref={chatBodyRef} className="chat-body p-3 flex-grow overflow-y-auto flex flex-col smooth-scroll">
+              <div
+                ref={chatBodyRef}
+                className="chat-body p-3 flex-grow overflow-y-auto flex flex-col smooth-scroll"
+              >
                 <div className="message bot-message p-3 break-words whitespace-pre-line flex mt-2 mb-2 bg-slate-300 max-w-64 rounded-tl-xl rounded-tr-xl rounded-bl-sm rounded-br-xl">
                   <p className="message-text text-sm">
                     Hello, How can I assist you today?

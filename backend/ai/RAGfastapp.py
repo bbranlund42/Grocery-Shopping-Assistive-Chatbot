@@ -11,8 +11,18 @@ from langchain_aws import BedrockEmbeddings, BedrockLLM
 from langchain_community.vectorstores import MongoDBAtlasVectorSearch
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+from fastapi.responses import JSONResponse
+
 
 app = FastAPI()
+
+# fhese are used for rate limiting
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Add this middleware to the app
 app.add_middleware(
@@ -65,7 +75,7 @@ def log_chat_to_db(user_id, user_message, bot_response):
                 "messages": {
                     "$each": [
                         {"role": "user", "text": user_message, "timestamp": timestamp},
-                        {"role": "model", "text": bot_response, "timestamp": timestamp}
+                        {"role": "assistant", "text": bot_response, "timestamp": timestamp}
                     ]
                 }
             }
@@ -138,6 +148,8 @@ GUIDELINES:
 15. The `"productID"` **MUST be in the format** `"PXXX"`, where `XXX` is a zero-padded three-digit number (e.g., `"P001"`, `"P002"`). DO NOT return just a number.
 16. **DO NOT fabricate or sequentially number productIDs. If product data is missing, state that instead of making up an ID.**
 17. Tone & Personality: Maintain a friendly and helpful tone. Always greet customers warmly, e.g., "Hello! I'm Chuck Cartis. How can I assist you today?"
+18. If asked for an item that is out of stock, clearly state that that item is out of stock, but provide ONE in-stock recommendation as a substitute.
+19. When asked about a type of product, give all options that fall under that product type. DO NOT give any options that fall outside of the given product type, unless all options are out of stock, in which case you can recommend the most similar product that is in stock.
 
 RELEVANT PRODUCT DATABASE INFORMATION:
 {context}
@@ -171,98 +183,52 @@ async def get_chat_history(user_id: str):
         raise HTTPException(status_code=404, detail="No chat history found.")
     return {"messages": chat["messages"]}
 
+
+# invoking the LLM
+# to limit the requests adjust below. 1/3seconds means 1 equest per 3 seconds
 @app.post("/invoke-model")
-async def invoke_model(request: PromptRequest):
-    user_query = request.prompt.strip()
+@limiter.limit("1/3seconds")
+async def invoke_model(request: Request, prompt: PromptRequest):
+    user_query = prompt.prompt.strip()
     log_message("User", user_query)
     user_id = "1111"
     
-    # Retrieve relevant documents from the vector database
     try:
         response = qa_chain.invoke({"query": user_query})
         retrieved_info = response["result"]
-        # log_langchain_response("langchain",retrieved_info)
-        log_message("Bot", retrieved_info)
+        log_message("Assistant", retrieved_info)
         
-        # used to log th echat history in the database
-        log_chat_to_db(user_id, user_query, retrieved_info)
+        # Extract only the most recent user message from the prompt
+        last_user_message = user_query.strip().split("\n")[-1]
+        if last_user_message.lower().startswith("user:"):
+            last_user_message = last_user_message[5:].strip()
+
+        # Extract just the assistant's answer
+        try:
+            parsed = json.loads(retrieved_info)
+            answer_only = parsed.get("answer", retrieved_info)
+        except Exception:
+            answer_only = retrieved_info
+
+        log_chat_to_db(user_id, last_user_message, answer_only)
         
         return {"generation": retrieved_info}
     except Exception as e:
-        retrieved_info = ""  # Fallback if retrieval fails
         log_message("System", f"Vector DB retrieval error: {str(e)}")
         raise HTTPException(status_code=500, detail="Error processing request")
+
+
+# function for Chat History
+@app.get("/chat-history/{user_id}")
+async def get_chat_history(user_id: str):
+    chat = chat_collection.find_one({"user_id": user_id})
+    if not chat:
+        # Return empty messages array instead of 404 error
+        return {"messages": []}
     
+    # Format timestamps for frontend display if they exist
+    for message in chat["messages"]:
+        if "timestamp" in message:
+            message["timestamp"] = message["timestamp"].isoformat()
     
-    # context = f"""You are a helpful assistant that assists shoppers in a grocery store.  
-    #         You provide information about products, availability, and pricing while refraining  
-    #         from discussing topics unrelated to grocery store products.  
-
-    #         When asked to display inventory data, present the information in the following structured table format:
-
-    #         | Product ID | Product Name        | Category   | Quantity | Price  | Description       |
-    #         |------------|---------------------|------------|----------|--------|-------------------|
-    #         | 12345      | Apples              | Produce    | 50       | $1.99  | Fresh red apples  |
-    #         | 67890      | Milk (1 Gallon)     | Dairy      | 20       | $3.49  | Whole milk        |
-    #         | 11223      | Bread (Whole Wheat) | Bakery     | 15       | $2.99  | Soft whole wheat  |
-    #         | 44556      | Eggs (12 count)     | Dairy      | 30       | $4.29  | Farm-fresh eggs   |
-    #         | 78901      | Chicken Breast (lb) | Meat       | 25       | $5.99  | Boneless, skinless|
-    #         | 23456      | Rice (5 lb)         | Grains     | 10       | $6.49  | Long-grain rice   |
-
-    #         Ensure that product details align with the available inventory. If data is missing,  
-    #         notify the user rather than generating inaccurate information. Ensure the borders in the table line up so that the table is easily readable.
-    #         Relevant information retrieved: {retrieved_info}""" if retrieved_info else "No relevant documents found."
-    
-    # context = f"""You are a helpful assistant that assists shoppers in a grocery store.  
-    #     You provide information about products, pricing, and availability while refraining  
-    #     from discussing topics unrelated to grocery store items.  
-
-    #     When returning a list of items, format the response as a **properly aligned table**  
-    #     with clear borders, ensuring readability. The table should include columns for  
-    #     Product ID, Item Name, Category, Price, Quantity in Stock, and Description.  
-    #     Only use real data, DO NOT fabricate data.
-    #     If data is available, format it as follows:  
-
-    #     | Product ID | Item Name          | Category   | Price  | Quantity | Description        |
-    #     |------------|--------------------|------------|--------|----------|--------------------|
-    #     | P002       | Apples             | Produce    | $1.99  | 50       | Fresh red apples   |
-    #     | P003       | Milk (1 Gallon)    | Dairy      | $3.49  | 20       | Whole milk         |
-    #     | P001       | Bread (Whole Wheat)| Bakery     | $2.99  | 15       | Soft whole wheat   |
-
-    #     Ensure the table aligns properly by adjusting spaces as needed.  
-
-    #     Relevant information retrieved: {retrieved_info}""" if retrieved_info else "No relevant documents found."
-    
-    # # Format the prompt
-    # formatted_prompt = f"""
-    # <|begin_of_text|>
-    # <|start_header_id|>system<|end_header_id|>
-    # {context}
-    # <|eot_id|>
-    # <|start_header_id|>user<|end_header_id|>
-    # {user_query}
-    # <|eot_id|>
-    # <|start_header_id|>assistant<|end_header_id|>
-    # """
-
-    # native_request = {
-    #     "prompt": formatted_prompt,
-    #     "max_gen_len": 512,
-    #     "temperature": 0.1,
-    # }
-
-    # try:
-    #     response = client.invoke_model(modelId="meta.llama3-3-70b-instruct-v1:0", body=json.dumps(native_request))
-    #     model_response = json.loads(response["body"].read())
-    #     bot_reply = model_response.get("generation", "")
-    #     log_message("Bot", bot_reply)
-    #     return {"generation": bot_reply}
-    # except (ClientError, Exception) as e:
-    #     error_message = f"Failed to invoke model: {str(e)}"
-    #     log_message("System", error_message)
-    #     raise HTTPException(status_code=500, detail=error_message)
-    
-    
-    
-    #add a !@ before the first item and between all of the next items to delimit the items, display all the information from the database.
-    #9. Display the JSON at the very end of the message, add !@# between your response and the JSON.
+    return {"messages": chat["messages"]}

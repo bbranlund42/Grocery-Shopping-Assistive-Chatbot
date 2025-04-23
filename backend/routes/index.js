@@ -51,6 +51,9 @@ const FoodSchema = new Schema({
     },
     location: {
         type: String
+    },
+    discount: {
+        type: Number
     }
 }); 
 
@@ -65,11 +68,82 @@ app.get('/findAllProducts', async (req, res) => {
     }
   });
 
+app.get('/findOne', async (req, res) => {
+  try {
+    // for some reason, the get request really did not like req.body so I used req.query using the 
+    const item = req.query.product_id; 
+    // info will return an object 
+    const info = await Food.findOne({product_id: item});
+    // send the object back to frontend to read 
+    res.json(info); 
+  } catch (error) {
+    res.status(500).json({ error: error.message})
+  }
+
+}); 
+
+app.get('/findByDiscount' ,async (req, res) =>{
+  try{
+    const item = await Food.find({discount: { $gt: 0 }})
+    console.log(item)
+    res.json(item)
+  } catch (error){
+    res.status(500).json({ error: error.message})
+  }
+});
+app.post('/updateAnItem', async (req, res) => {
+  try{
+    // everything sent will be within req.body._____
+    // define text that will be used later
+    const text = (`
+Product ID: ${req.body.product_id}
+Product Name: ${req.body.product_name}
+Category: ${req.body.category}
+Quantity: ${req.body.quantity}
+Price: ${req.body.price}
+Description: ${req.body.description}
+Location: ${req.body.location}
+Discount: ${req.body.discount}`
+    ); 
+    // this will update all the fields 
+    const result = await Food.updateOne(
+      {product_id: req.body.product_id }, 
+      {
+        product_name: req.body.product_name, 
+        category: req.body.category,
+        quantity: req.body.quantity,
+        price: req.body.price,
+        description: req.body.description,
+        location: req.body.location,
+        discount: req.body.discount
+      }
+      // update the text embedding
+      ); 
+      const res2 = await Food.updateOne(
+        {product_id: req.body.product_id}, 
+        {$set: {'text': text}}, 
+        {strict: false}
+    ); 
+    // update the number embedding
+    const embedding = await embedding_model.embedQuery(req.body.product_name); 
+    const embed = await Food.updateOne(
+      {product_id: req.body.product_id}, 
+      {$set: {'embedding': embedding} }, 
+      {strict: false}
+      ); 
+
+      res.status(20).json({message: 'joe'})
+  } catch (error){
+    res.status(500).json({ error: error.message})
+  }
+}); 
+
 app.post('/addNewFood', async (req,res) => {
     try{        
-        const {product_id, product_name, category, quantity, price, description, location} = req.body;
+        const {product_id, product_name, category, quantity, price, description, location, discount} = req.body;
         //const {product_id, product_name, category, quantity, price, description, location} = req.query;
-        const newFood = new Food({product_id, product_name, category, quantity, price, description, location});
+        const newFood = new Food({product_id, product_name, category, quantity, price, description, location, discount});
+        const savedFood = await newFood.save();
 
         const embedding = await embedding_model.embedQuery(newFood['product_name']); 
         const result = await Food.updateOne(
@@ -84,7 +158,8 @@ Category: ${newFood['category']}
 Quantity: ${newFood['quantity']}
 Price: ${newFood['price']}
 Description: ${newFood['description']}
-Location: ${newFood['location']}`
+Location: ${newFood['location']}
+Discount: ${newFood['discount']}`
         ); 
         const res2 = await Food.updateOne(
             {'_id': newFood['_id']}, 
@@ -152,5 +227,34 @@ app.post('/updateInventory', async (req, res) => {
   }
 });
   
+
+// need to find out if the discount can by updated though here
+app.put('/updateDiscount', async (req, res) => {
+    try {
+        const { product_id, discount } = req.body;
+        if (!product_id || !discount) {
+            return res.status(400).json({ error: "Missing required fields: product_id or discount" });
+        }
+        
+        const updatedFood = await Food.findOneAndUpdate(
+            { product_id },
+            { discount },
+            { new: true } // Return the updated document
+        );
+        
+        if (!updatedFood) {
+            return res.status(404).json({ error: "Food item not found" });
+        }
+        
+        res.json({ message: "Discount updated successfully!", data: updatedFood });
+    } catch (error) {
+        console.error("Error updating discount:", error);
+        res.status(500).json({ error: error.message });
+    }
+});
+// add discount to add item api call so it can be vecotrized
+// need to postman call to test discount, bens bread is the only one with a discount currently
+// update ui to dev page
+// need to add discount section to ui
   
   app.listen(PORT);

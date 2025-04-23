@@ -8,19 +8,60 @@ const OrderHistory = () => {
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+  const [userId, setUserId] = useState(null);
+
   useEffect(() => {
+    // Get the userId from localStorage when component mounts
+    const storedUserId = localStorage.getItem('userId');
+    if (storedUserId) {
+      setUserId(storedUserId);
+    } else {
+      // Default for development/testing
+      setUserId('single_user_id');
+    }
+  }, []);
+
+  // Function to repurchase items from a previous order
+  const repurchaseItems = async (items) => {
+    try {
+      // Add items to cart
+      for (const item of items) {
+        await axios.post('http://localhost:4000/cart/add', {
+          productId: item.product_id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          userId: userId
+        });
+      }
+      
+      // Navigate to cart after adding items
+      alert('Items added to cart!');
+      navigate('/cart');
+    } catch (error) {
+      console.error('Error repurchasing items:', error);
+      alert('Failed to add items to cart. Please try again.');
+    }
+  };
+
+  useEffect(() => {
+    // Only fetch if userId is available
+    if (!userId) return;
+    
     const fetchOrderHistory = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get('http://localhost:4800/Order_history');
+        const response = await axios.get(`http://localhost:4800/Order_history?userId=${userId}`);
         
-        console.log('Raw response:', response.data);
+        console.log('Raw response data:', response.data);
         
-        // Get the orders array from the response
-        const historicOrders = response.data.Historic_Items || [];
+        // Handle the order history data structure properly
+        if (response.data && response.data.Historic_Items) {
+          setOrders(response.data.Historic_Items);
+        } else {
+          setOrders([]);
+        }
         
-        setOrders(historicOrders);
         setError(null);
       } catch (error) {
         console.error('Error fetching order history:', error);
@@ -32,8 +73,13 @@ const OrderHistory = () => {
     };
     
     fetchOrderHistory();
-  }, []);
+  }, [userId]); // Only re-run if userId changes
   
+  //debuggin wats in oders
+  useEffect(() => {
+    console.log('Current orders state:', orders);
+  }, [orders]);
+
   return (
     <div className="bg-white min-h-screen flex flex-col items-center">
       {/* Header */}
@@ -71,11 +117,14 @@ const OrderHistory = () => {
                     <div className="font-semibold">
                       Order #{(order._id || '').substring((order._id || '').length - 6) || orderIndex + 1}
                     </div>
+                    <div className="text-sm text-gray-500">
+                      {new Date(order.createdAt || Date.now()).toLocaleDateString()}
+                    </div>
                   </div>
                   
                   {/* Order Items */}
                   <div className="divide-y divide-gray-100">
-                    {Array.isArray(order.items) && order.items.map((item, index) => (
+                    {(order.items && Array.isArray(order.items)) ? order.items.map((item, index) => (
                       <div key={`${item.product_id || index}`} className="flex items-center justify-between p-3">
                         <div className="flex items-center space-x-3">
                           <div className="w-12 h-12 bg-gray-200 rounded-lg overflow-hidden">
@@ -94,14 +143,20 @@ const OrderHistory = () => {
                           Qty: {item.quantity || 0}
                         </div>
                       </div>
-                    ))}
+                    )) : <div className="p-3 text-gray-500">No items in this order</div>}
                   </div>
                   
-                  {/* Order Total */}
-                  <div className="p-3 bg-blue-50 border-t border-blue-200">
-                    <div className="font-bold text-right">
+                  {/* Order Total and Repurchase Button */}
+                  <div className="p-3 bg-blue-50 border-t border-blue-200 flex justify-between items-center">
+                    <div className="font-bold">
                       Total: ${(order.totalAmount || 0).toFixed(2)}
                     </div>
+                    <button 
+                      className="bg-blue-500 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-600"
+                      onClick={() => repurchaseItems(order.items || [])}
+                    >
+                      Repurchase Order
+                    </button>
                   </div>
                 </div>
               ))

@@ -25,7 +25,6 @@ export default function HomePage() {
         {/* Overlay to improve text readability */}
         <div className="absolute inset-0 bg-black/30"></div>
       </div>
-
       {/* Content Container */}
       <div className="relative h-1/2 flex flex-col items-center justify-center text-center px-4">
         <h1 className="text-4xl font-bold text-white mb-2">
@@ -38,7 +37,7 @@ export default function HomePage() {
         {/* Buttons Container */}
         <div className="flex gap-4">
           <button 
-            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-300"
+            className="px-6 py-2 set-user-text text-white rounded-md custom-hover transition-colors duration-300"
             onClick={handleStartChatting} >
             Start Chatting
           </button>

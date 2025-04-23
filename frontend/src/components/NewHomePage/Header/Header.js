@@ -1,32 +1,47 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Menu, X,User } from "lucide-react"; // Import Lucide icons
+import { Menu, X, User } from "lucide-react"; // Import Lucide icons
 
 export default function Header() {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [username, setUsername] = useState("");
-
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userName, setUserName] = useState("");
+  
+  // Check if user is logged in on component mount and when coming back to this page
   useEffect(() => {
-    const storedUsername = localStorage.getItem("username");
-    if (storedUsername) {
-      setUsername(storedUsername);
-    }
+    checkLoginStatus();
   }, []);
-
-  const handleSignOut = () => {
+  
+  const checkLoginStatus = () => {
+    const loggedInUser = localStorage.getItem("userId");
+    const storedUserName = localStorage.getItem("userName") || localStorage.getItem("username");
+    
+    if (loggedInUser) {
+      setIsLoggedIn(true);
+      setUserName(storedUserName || "User");
+    } else {
+      setIsLoggedIn(false);
+      setUserName("");
+    }
+  };
+  
+  const handleLogout = () => {
+    localStorage.removeItem("userId");
+    localStorage.removeItem("userName");
     localStorage.removeItem("username");
-    setUsername("");
+    setIsLoggedIn(false);
+    setUserName("");
     navigate("/");
   };
   
   const menuItems = [
-    { label: "Products", href: "/" },
+    { label: "Products", href: "/#products" },
     { label: "Just Chatting", href: "/JustChatting" },
     { label: "Cart", href: "/cart" },
     { label: "Contact", href: "#" },
     { label: "Order History", href: "/Order_History"},
-    { label: "Dev Page", href: "DevPage" }
+    { label: "Dev Page", href: "/DevPage" }
   ];
 
   return (
@@ -67,34 +82,34 @@ export default function Header() {
 
             {/* Auth Buttons */}
             <div className="flex items-center space-x-4">
-              {username ? (
+              {isLoggedIn ? (
                 <div className="flex items-center space-x-2">
                   <button
-                    className="text-gray-600 hover:text-gray-900 px-3 py-1 text-sm font-medium"
-                    onClick={handleSignOut}
+                    className="text-gray-600 hover:bg-slate-300 px-3 py-1 text-sm font-medium rounded-md"
+                    onClick={handleLogout}
                   >
-                      Sign out
-                    </button>
-                    <div className="flex-col justify-center items-center">
-                    <User size={30} className="text-gray-600" />
-                    <span className="text-sm font-medium text-gray-600 ms-2">{username}</span>
-                    </div>
-                    </div>
-              ):(
-              <>
-              <button
-                className="text-gray-600 hover:text-gray-900 px-3 py-1 text-sm font-medium"
-                onClick={() => navigate("/LoginPage")}
-              >
-                Sign in
-              </button>
-              <button
-                className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700"
-                onClick={() => navigate("/CreateAccount")}
-              >
-                Register
-              </button>
-              </>
+                    Sign out
+                  </button>
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <User size={20} />
+                    <span className="font-medium">{userName}</span>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <button
+                    className="text-gray-600 hover:bg-slate-300 px-3 py-1 text-sm font-medium rounded-md"
+                    onClick={() => navigate("/LoginPage")}
+                  >
+                    Sign in
+                  </button>
+                  <button
+                    className="set-user-text text-white px-4 py-2 rounded-md text-sm font-medium custom-hover"
+                    onClick={() => navigate("/CreateAccount")}
+                  >
+                    Register
+                  </button>
+                </>
               )}
             </div>
           </div>
@@ -107,23 +122,41 @@ export default function Header() {
               <a
                 key={item.label}
                 href={item.href}
-                className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium block"
+                className="text-gray-600 hover:bg-gray-300 px-3 py-2 text-sm font-medium block rounded-lg"
               >
                 {item.label}
               </a>
             ))}
-            <button
-              className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium"
-              onClick={() => navigate("/LoginPage")}
-            >
-              Sign in
-            </button>
-            <button
-              className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700"
-              onClick={() => navigate("/CreateAccount")}
-            >
-              Register
-            </button>
+            
+            {isLoggedIn ? (
+              <>
+                <div className="flex items-center gap-2 text-gray-600 px-3 py-2">
+                  <User size={16} />
+                  <span className="font-medium">{userName}</span>
+                </div>
+                <button
+                  className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-300 w-full text-left"
+                  onClick={handleLogout}
+                >
+                  Sign out
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  className="text-gray-600 hover:bg-gray-300 px-3 py-2 text-sm font-medium rounded-lg"
+                  onClick={() => navigate("/LoginPage")}
+                >
+                  Sign in
+                </button>
+                <button
+                  className="set-user-text text-white px-4 py-2 rounded-md text-sm font-medium custom-hover"
+                  onClick={() => navigate("/CreateAccount")}
+                >
+                  Register
+                </button>
+              </>
+            )}
           </div>
         )}
       </div>
