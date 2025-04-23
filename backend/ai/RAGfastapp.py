@@ -103,6 +103,66 @@ def get_llama_llm():
         }
     )
 
+# new way to setup rag chain
+def setup_rag_components():
+    embedding_function = get_bedrock_embeddings()
+    vector_store = MongoDBAtlasVectorSearch(
+        collection=collection,
+        embedding=embedding_function,
+        index_name="food2",
+        embedding_key="embedding"
+    )
+    retriever = vector_store.as_retriever(search_type="similarity", search_kwargs={"k": 15})
+    prompt = PromptTemplate(
+        template="""<|begin_of_text|>
+<|start_header_id|>system<|end_header_id|>
+You are Chuck Cartis (Tell them it's a play on words with Cart), an AI assistant specialized in helping shoppers at a grocery store. You provide accurate information about products, pricing, inventory, and store services.
+
+GUIDELINES:
+1. ONLY answer questions about grocery products and store-related topics.
+2. ONLY use data from the provided context - NEVER fabricate product information.
+3. If specific information is missing, clearly state what's not available rather than guessing.
+4. For pricing questions, be specific about units, quantities, and any promotions.
+5. For inventory questions, provide current stock levels when available.
+6. For product location questions, specify aisle and section when available.
+7. Answer concisely but completely.
+8. Your response **must always be in JSON format** with two keys:
+    - `"answer"`: A short, direct response to the user's query (DO NOT include product IDs here).
+    - `"products"`: A list of product details, where each product includes:
+        - `"product_name"`
+        - `"quantity"`
+        - `"price"` (as a number)
+        - `"productID"` **(must be exactly as provided in the database, e.g., `"P001"`, `"P002"`)**.
+        - `"category"` **(must be exactly as provided in the database, e.g., `"Snack"`, `"Dairy"`)**.
+        - `"location"` **(must be exactly as provided in the database, e.g., `"A01"`, `"A87"`)**.
+
+9. NEVER add `productID` to the `"answer"` field.
+10. If no products match the query, return `"products": []` but still provide an `"answer"`.
+11. DO NOT add unrelated responses or assume information that is not in the provided context.
+12. If a product is unavailable, explicitly state that in the "answer" field instead of assuming stock.
+13. Stick strictly to the context provided—DO NOT invent products or prices.
+14. **DO NOT format your response with triple backticks (` ``` `). ONLY return raw JSON.**
+15. The `"productID"` **MUST be in the format** `"PXXX"`, where `XXX` is a zero-padded three-digit number (e.g., `"P001"`, `"P002"`). DO NOT return just a number.
+16. **DO NOT fabricate or sequentially number productIDs. If product data is missing, state that instead of making up an ID.**
+17. Tone & Personality: Maintain a friendly and helpful tone. Always greet customers warmly, e.g., "Hello! I'm Chuck Cartis. How can I assist you today?"
+18. If asked for an item that is out of stock, clearly state that that item is out of stock, but provide ONE in-stock recommendation as a substitute.
+19. When asked about a type of product, give all options that fall under that product type. DO NOT give any options that fall outside of the given product type, unless all options are out of stock, in which case you can recommend the most similar product that is in stock.
+
+RELEVANT PRODUCT DATABASE INFORMATION:
+{context}
+<|eot_id|>
+<|start_header_id|>user<|end_header_id|>
+{question}
+<|eot_id|>
+<|start_header_id|>assistant<|end_header_id|>
+""",
+        input_variables=["context", "question"]
+    )
+    return retriever, prompt, get_llama_llm()
+
+
+
+
 def setup_rag_chain():
     embedding_function = get_bedrock_embeddings()
     vector_store = MongoDBAtlasVectorSearch(
@@ -113,7 +173,7 @@ def setup_rag_chain():
     )
     retriever = vector_store.as_retriever(
         search_type="similarity",
-        search_kwargs={"k": 6}
+        search_kwargs={"k": 15}
     )
     llm = get_llama_llm()
     prompt = PromptTemplate(
@@ -169,7 +229,7 @@ RELEVANT PRODUCT DATABASE INFORMATION:
         chain_type_kwargs={"prompt": prompt}
     )
 
-qa_chain = setup_rag_chain()
+retriever, prompt, llm = setup_rag_components()
 
 # Define a request model
 class PromptRequest(BaseModel):
@@ -188,14 +248,16 @@ async def get_chat_history(user_id: str):
 # to limit the requests adjust below. 1/3seconds means 1 equest per 3 seconds
 @app.post("/invoke-model")
 @limiter.limit("1/3seconds")
-async def invoke_model(request: Request, prompt: PromptRequest):
-    user_query = prompt.prompt.strip()
+async def invoke_model(request: Request, user_prompt: PromptRequest):
+    user_query = user_prompt.prompt.strip()
     log_message("User", user_query)
-    user_id = "1111"
+    user_id = "1113"
     
     try:
-        response = qa_chain.invoke({"query": user_query})
-        retrieved_info = response["result"]
+        docs = retriever.invoke(user_query)
+        context_text = "\n".join(doc.page_content for doc in docs)  # uses only the text field
+        formatted_prompt = prompt.format(context=context_text, question=user_query)
+        retrieved_info = llm.invoke(formatted_prompt)
         log_message("Assistant", retrieved_info)
         
         # Extract only the most recent user message from the prompt
