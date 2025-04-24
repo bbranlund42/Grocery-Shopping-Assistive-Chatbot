@@ -8,7 +8,7 @@ import CreateAccount from "./components/CreateAccount/CreateAccount";
 import SearchShopping from "./components/SearchShopping/SearchShopping";
 import ShoppingCartCheckout from "./components/ShoppingCartCheckout/ShoppingCartCheckout";
 import JustChatting from "./components/JustChatting/JustChatting";
-import CapMap from "./components/CapMap/CapMap";
+import CapMap from "./components/CapMap/IndoorMap";
 import NavigatePage from "./components/NavigatePage/NavigatePage";
 import NewHomePage from "./components/NewHomePage/Home/Home";
 import reportWebVitals from "./reportWebVitals";
@@ -16,6 +16,7 @@ import Order_History from "./components/Order_history/Order_History";
 import DevPage from "./components/DevPage/devPage"; 
 import UpdatePage from "./components/DevPage/updatePage"; 
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import IndoorMap from "./components/CapMap/IndoorMap";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -29,7 +30,7 @@ root.render(
         <Route path="CreateAccount" element={<CreateAccount />} />
         <Route path="SearchShopping" element={<SearchShopping />} />
         <Route path="cart" element={<ShoppingCartCheckout />} />
-        <Route path="CapMap" element={<CapMap />} />
+        <Route path="CapMap" element={<IndoorMap mapImageUrl="/aisles.PNG"/>} />
         <Route path="NavigatePage" element={<NavigatePage />} />
         <Route path="JustChatting" element={<JustChatting />} />
         <Route path= "Order_History" element={<Order_History/>}/>
