@@ -85,7 +85,6 @@ app.get('/findOne', async (req, res) => {
 app.get('/findByDiscount' ,async (req, res) =>{
   try{
     const item = await Food.find({discount: { $gt: 0 }})
-    console.log(item)
     res.json(item)
   } catch (error){
     res.status(500).json({ error: error.message})
@@ -217,6 +216,28 @@ app.post('/updateInventory', async (req, res) => {
           // Subtract the cart quantity from the database quantity
           foodItem.quantity = foodItem.quantity - item.quantity;
           await foodItem.save();
+          // update text and embedding
+          const text = (`
+Product ID: ${foodItem['product_id']}
+Product Name: ${foodItem['product_name']}
+Category: ${foodItem['category']}
+Quantity: ${foodItem['quantity']}
+Price: ${foodItem['price']}
+Description: ${foodItem['description']}
+Location: ${foodItem['location']}
+Discount: ${foodItem['discount']}`)
+          const res2 = await Food.updateOne(
+            {'_id': foodItem['_id']}, 
+            {$set: {'text': text}}, 
+            {strict: false}
+          ); 
+          const embedding = await embedding_model.embedQuery(foodItem['product_name']); 
+          const result = await Food.updateOne(
+            {'_id': foodItem['_id']}, 
+            {$set: {'embedding': embedding} }, 
+            {strict: false}
+            ); 
+
           console.log(`Updated quantity for ${foodItem.product_name}. New quantity: ${foodItem.quantity}`);
       }
       
