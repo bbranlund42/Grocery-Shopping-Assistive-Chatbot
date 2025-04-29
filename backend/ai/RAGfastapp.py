@@ -48,6 +48,7 @@ chat_collection = db["chat_history"]  # New collection for chat logs
 # Setup local logging
 LOG_FILE = "chat_history.log"
 LOG_FILE2 = "langchain_history.log"
+# LOG_FILE3 = "langchain_returned.log"
 
 # logs the chat history to local copy
 def log_message(speaker: str, message: str):
@@ -56,6 +57,14 @@ def log_message(speaker: str, message: str):
     log_entry = f"[{timestamp}] {speaker}: {message}\n"
     with open(LOG_FILE, "a", encoding="utf-8") as file:
         file.write(log_entry)
+
+# logs the value that is send to the LLM
+# def log_message3(speaker: str, message: str):
+#     """Logs chat history with timestamps."""
+#     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+#     log_entry = f"[{timestamp}] {speaker}: {message}\n"
+#     with open(LOG_FILE3, "a", encoding="utf-8") as file:
+#         file.write(log_entry)
 
 # depricated function for returning what langchain returns
 # def log_langchain_response(speaker: str, message: str):
@@ -191,6 +200,7 @@ async def invoke_model(request: Request, user_prompt: PromptRequest):
         formatted_prompt = prompt.format(context=context_text, question=user_query)
         retrieved_info = llm.invoke(formatted_prompt)
         log_message("Assistant", retrieved_info)
+        # log_message3("ValueSent", formatted_prompt)
         
         # Extract only the most recent user message from the prompt
         last_user_message = user_query.strip().split("\n")[-1]
