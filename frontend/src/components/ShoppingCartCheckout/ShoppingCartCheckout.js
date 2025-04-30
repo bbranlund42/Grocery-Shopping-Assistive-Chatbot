@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { House, ShoppingCart, Trash2, Minus, Plus } from 'lucide-react';
 import axios from 'axios';
+import Header from '../NewHomePage/Header/Header';
+import IndoorMap from '../CapMap/IndoorMap';
 
 const ShoppingCartCheckout = ({onUpdateCart}) => {
   const navigate = useNavigate();
@@ -156,21 +158,7 @@ const ShoppingCartCheckout = ({onUpdateCart}) => {
   return (
     <div className="bg-white min-h-screen flex flex-col items-center">
       {/* Header */}
-      <div className="w-full flex items-center justify-between p-4">
-        <button
-          className="bg-blue-400 text-white w-10 h-10 flex items-center justify-center rounded-full"
-          onClick={() => navigate(-1)}
-        >
-          ⬅
-        </button>
-        <div className="text-blue-400 text-2xl font-medium">Shopping Cart</div>
-        <button
-          className="bg-blue-400 text-white w-10 h-10 flex items-center justify-center rounded"
-          onClick={() => navigate("/")}
-        >
-          <House size={24} />
-        </button>
-      </div>
+      <Header />
 
       {/* Cart Container */}
       <div className="w-full max-w-md border border-blue-200 rounded-lg p-4 mx-4">

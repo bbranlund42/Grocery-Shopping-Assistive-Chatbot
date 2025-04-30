@@ -12,17 +12,19 @@ const IndoorMap = ({
   const [mapLoaded, setMapLoaded] = useState(false);
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
-  const [path, setPath] = useState([]);
+  const [fullPath, setFullPath] = useState([]);
+  const [displayPath, setDisplayPath] = useState([]);
   const [selectedItems, setSelectedItems] = useState([]);
   const [scale, setScale] = useState({ 
     minX: 0, maxX: 4, minY: -1, maxY: 5,
     width: 7, height: 7
   });
   const [showNodes, setShowNodes] = useState(true);
-  const [showEdges, setShowEdges] = useState(true);
+  //const [showEdges, setShowEdges] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [currentPathIndex, setCurrentPathIndex] = useState(0);
+  const [currentProductIndex, setCurrentProductIndex] = useState(0);
+  const [productSegments, setProductSegments] = useState([]);
   const [showingSequential, setShowingSequential] = useState(false);
   
   const canvasRef = useRef(null);
@@ -86,36 +88,46 @@ const IndoorMap = ({
   // Draw everything when dependencies change
   useEffect(() => {
     drawMap();
-  }, [mapLoaded, nodes, edges, path, showNodes, showEdges, scale, currentPathIndex, showingSequential]);
+  }, [mapLoaded, nodes, edges, displayPath, scale]);
 
-  // Find optimized route through selected items
-  const findOptimizedRoute = async () => {
-    if (selectedItems.length === 0) {
-      setError('Please select at least one item');
-      return;
-    }
-    
-    setLoading(true);
-    setError(null);
-    
-    try {
-      const response = await axios.post(`${apiBaseUrl}/find_optimized_route`, {
-        items: selectedItems
+  // Create product segments from path
+  useEffect(() => {
+    if (fullPath.length > 0 && selectedItems.length > 0) {
+      // Find indices of selected items in path
+      const productIndices = [];
+      
+      // Always start with the first node (entrance)
+      productIndices.push(0);
+      
+      // Add indices of all selected products
+      fullPath.forEach((point, index) => {
+        if (selectedItems.includes(point.node)) {
+          productIndices.push(index);
+        }
       });
       
-      setPath(response.data.path);
-      // Reset sequential navigation
-      setShowingSequential(false);
-      setCurrentPathIndex(0);
-    } catch (err) {
-      console.error('Error finding route:', err);
-      setError(err.response?.data?.error || 'Failed to calculate route');
-    } finally {
-      setLoading(false);
+      // Create product segments
+      const segments = [];
+      for (let i = 0; i < productIndices.length; i++) {
+        const startIdx = productIndices[i];
+        const endIdx = i + 1 < productIndices.length ? productIndices[i + 1] : fullPath.length - 1;
+        
+        if (startIdx <= endIdx) {
+          segments.push(fullPath.slice(startIdx, endIdx + 1));
+        }
+      }
+      
+      setProductSegments(segments);
+      
+      // Show first segment by default
+      if (segments.length > 0) {
+        setDisplayPath(segments[0]);
+      }
     }
-  };
+  }, [fullPath, selectedItems]);
 
-  // Find sequential path through selected items
+  
+
   const findSequentialPath = async () => {
     if (selectedItems.length === 0) {
       setError('Please select at least one item');
@@ -130,9 +142,9 @@ const IndoorMap = ({
         items: selectedItems
       });
       
-      setPath(response.data.path);
+      setFullPath(response.data.path);
       setShowingSequential(true);
-      setCurrentPathIndex(1); // Start showing first segment
+      setCurrentProductIndex(0); // Start showing first segment
     } catch (err) {
       console.error('Error finding sequential path:', err);
       setError(err.response?.data?.error || 'Failed to calculate sequential path');
@@ -141,17 +153,21 @@ const IndoorMap = ({
     }
   };
 
-  // Move to next segment in the path
+  // Move to next product segment
   const showNextSegment = () => {
-    if (currentPathIndex < path.length - 1) {
-      setCurrentPathIndex(currentPathIndex + 1);
+    if (currentProductIndex < productSegments.length - 1) {
+      const nextIndex = currentProductIndex + 1;
+      setCurrentProductIndex(nextIndex);
+      setDisplayPath(productSegments[nextIndex]);
     }
   };
 
-  // Move to previous segment in the path
+  // Move to previous product segment
   const showPreviousSegment = () => {
-    if (currentPathIndex > 1) {
-      setCurrentPathIndex(currentPathIndex - 1);
+    if (currentProductIndex > 0) {
+      const prevIndex = currentProductIndex - 1;
+      setCurrentProductIndex(prevIndex);
+      setDisplayPath(productSegments[prevIndex]);
     }
   };
 
@@ -183,178 +199,73 @@ const IndoorMap = ({
       );
     }
     
-    // Draw edges if enabled
-    if (showEdges) {
-      ctx.strokeStyle = '#888888';
-      ctx.lineWidth = 1;
+    // Draw current display path
+    if (displayPath && displayPath.length > 0) {
+      // Draw the path
+      ctx.strokeStyle = '#0066FF';  // Bright blue
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(toCanvasX(displayPath[0].x), toCanvasY(displayPath[0].y));
       
-      edges.forEach(edge => {
+      for (let i = 1; i < displayPath.length; i++) {
+        ctx.lineTo(toCanvasX(displayPath[i].x), toCanvasY(displayPath[i].y));
+      }
+      
+      ctx.stroke();
+      
+      
+      // Highlight start and end nodes of the current segment
+      if (displayPath.length > 0) {
+        // Start node
+        const start = displayPath[0];
+        ctx.fillStyle = '#FF5722'; // Orange for start
         ctx.beginPath();
-        ctx.moveTo(toCanvasX(edge.sourceX), toCanvasY(edge.sourceY));
-        ctx.lineTo(toCanvasX(edge.targetX), toCanvasY(edge.targetY));
-        ctx.stroke();
-      });
-    }
-    
-    // Draw path based on whether we're showing sequential or full path
-    if (path.length > 0) {
-      if (showingSequential) {
-        // Draw only up to current index for sequential path
-        ctx.strokeStyle = '#0066FF';  // Bright blue
-        ctx.lineWidth = 3;
+        ctx.arc(
+          toCanvasX(start.x), 
+          toCanvasY(start.y), 
+          nodeRadius + 5, 
+          0, 
+          2 * Math.PI
+        );
+        ctx.fill();
+        
+        // End node
+        const end = displayPath[displayPath.length - 1];
+        ctx.fillStyle = '#4CAF50'; // Green for end
         ctx.beginPath();
-        ctx.moveTo(toCanvasX(path[0].x), toCanvasY(path[0].y));
+        ctx.arc(
+          toCanvasX(end.x), 
+          toCanvasY(end.y), 
+          nodeRadius + 5, 
+          0, 
+          2 * Math.PI
+        );
+        ctx.fill();
         
-        for (let i = 1; i <= Math.min(currentPathIndex, path.length - 1); i++) {
-          ctx.lineTo(toCanvasX(path[i].x), toCanvasY(path[i].y));
-        }
-        
-        ctx.stroke();
-        
-        // Draw direction arrows only for current segment
-        if (currentPathIndex > 0) {
-          ctx.fillStyle = '#0066FF';
-          const prev = path[currentPathIndex - 1];
-          const curr = path[currentPathIndex];
-          const dx = curr.x - prev.x;
-          const dy = curr.y - prev.y;
-          const dist = Math.sqrt(dx*dx + dy*dy);
-          
-          if (dist >= 0.1) {
-            // Calculate arrow position (70% along the path segment)
-            const arrowX = toCanvasX(prev.x + dx * 0.7);
-            const arrowY = toCanvasY(prev.y + dy * 0.7);
-            const angle = Math.atan2(dy, dx);
-            
-            // Draw arrow
-            const arrowSize = 10;
-            ctx.save();
-            ctx.translate(arrowX, arrowY);
-            ctx.rotate(angle);
-            ctx.beginPath();
-            ctx.moveTo(0, 0);
-            ctx.lineTo(-arrowSize, -arrowSize/2);
-            ctx.lineTo(-arrowSize, arrowSize/2);
-            ctx.closePath();
-            ctx.fill();
-            ctx.restore();
-          }
-        }
-
-        // Highlight current and next nodes
-        if (currentPathIndex < path.length) {
-          // Current node
-          const current = path[currentPathIndex];
-          ctx.fillStyle = '#FF5722'; // Orange for current position
-          ctx.beginPath();
-          ctx.arc(
-            toCanvasX(current.x), 
-            toCanvasY(current.y), 
-            nodeRadius + 5, 
-            0, 
-            2 * Math.PI
-          );
-          ctx.fill();
-
-          // Label for current node
-          ctx.fillStyle = '#ffffff';
-          ctx.font = '12px Arial';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(current.node, toCanvasX(current.x), toCanvasY(current.y));
-        }
-      } else {
-        // Draw full path
-        ctx.strokeStyle = '#0066FF';  // Bright blue
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(toCanvasX(path[0].x), toCanvasY(path[0].y));
-        
-        for (let i = 1; i < path.length; i++) {
-          ctx.lineTo(toCanvasX(path[i].x), toCanvasY(path[i].y));
-        }
-        
-        ctx.stroke();
-        
-        // Draw direction arrows along the path
-        ctx.fillStyle = '#0066FF';
-        for (let i = 1; i < path.length; i++) {
-          const prev = path[i-1];
-          const curr = path[i];
-          const dx = curr.x - prev.x;
-          const dy = curr.y - prev.y;
-          const dist = Math.sqrt(dx*dx + dy*dy);
-          
-          if (dist < 0.1) continue; // Skip if nodes are too close
-          
-          // Calculate arrow position (70% along the path segment)
-          const arrowX = toCanvasX(prev.x + dx * 0.7);
-          const arrowY = toCanvasY(prev.y + dy * 0.7);
-          const angle = Math.atan2(dy, dx);
-          
-          // Draw arrow
-          const arrowSize = 8;
-          ctx.save();
-          ctx.translate(arrowX, arrowY);
-          ctx.rotate(angle);
-          ctx.beginPath();
-          ctx.moveTo(0, 0);
-          ctx.lineTo(-arrowSize, -arrowSize/2);
-          ctx.lineTo(-arrowSize, arrowSize/2);
-          ctx.closePath();
-          ctx.fill();
-          ctx.restore();
-        }
+        // Label nodes
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '12px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(start.node, toCanvasX(start.x), toCanvasY(start.y));
+        ctx.fillText(end.node, toCanvasX(end.x), toCanvasY(end.y));
       }
     }
 
     // Draw nodes if enabled
     if (showNodes) {
-      nodes.forEach(node => {
-        // Check if this node is in the current path segment
-        const isInCurrentPath = showingSequential && 
-          path.some((p, idx) => p.node === node.id && idx <= currentPathIndex);
-        
-        // Different style for selected items and nodes in the path
+      nodes.forEach(node => {       
+        // Different style for selected items
         const isSelected = selectedItems.includes(node.id);
         const isEntrance = node.id === 'EX';
-        const isPathNode = !showingSequential && path.some(p => p.node === node.id);
-        
-        // Skip if this node is the current position in sequential mode (already drawn)
-        if (showingSequential && path[currentPathIndex]?.node === node.id) {
-          return;
-        }
         
         // Set node style based on type
         if (isEntrance) {
           ctx.fillStyle = '#FF5722'; // Orange for entrance
         } else if (isSelected) {
           ctx.fillStyle = '#4CAF50'; // Green for selected items
-        } else if (isInCurrentPath) {
-          ctx.fillStyle = '#2196F3'; // Blue for nodes in current path
-        } else if (isPathNode) {
-          ctx.fillStyle = '#2196F3'; // Blue for nodes in path
-        } else {
-          ctx.fillStyle = '#888888'; // Gray for regular nodes
-        }
+        } 
         
-        // Draw node circle
-        ctx.beginPath();
-        ctx.arc(
-          toCanvasX(node.x), 
-          toCanvasY(node.y), 
-          isSelected || isEntrance || isPathNode || isInCurrentPath ? nodeRadius + 2 : nodeRadius, 
-          0, 
-          2 * Math.PI
-        );
-        ctx.fill();
-        
-        // Draw node label
-        ctx.fillStyle = '#ffffff';
-        ctx.font = '12px Arial';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(node.id, toCanvasX(node.x), toCanvasY(node.y));
         
         // Draw highlighting circle around selected items
         if (isSelected) {
@@ -389,7 +300,7 @@ const IndoorMap = ({
     const graphX = toGraphX(canvasX);
     const graphY = toGraphY(canvasY);
     
-    console.log('Click at:', {canvasX, canvasY, graphX, graphY});
+    //console.log('Click at:', {canvasX, canvasY, graphX, graphY});
     
     // Find if a node was clicked
     const clickedNode = nodes.find(node => {
@@ -421,28 +332,33 @@ const IndoorMap = ({
   // Reset the map selections and path
   const resetMap = () => {
     setSelectedItems([]);
-    setPath([]);
+    setFullPath([]);
+    setDisplayPath([]);
+    setProductSegments([]);
     setError(null);
     setShowingSequential(false);
-    setCurrentPathIndex(0);
+    setCurrentProductIndex(0);
   };
 
   // Get current navigation status text
   const getNavigationStatus = () => {
-    if (!showingSequential || path.length === 0) return "";
+    if (!showingSequential || productSegments.length === 0) return "";
     
-    if (currentPathIndex === 0) {
-      return "Starting point";
+    const currentSegment = productSegments[currentProductIndex];
+    if (!currentSegment || currentSegment.length === 0) return "";
+    
+    const from = currentSegment[0]?.node || "";
+    const to = currentSegment[currentSegment.length - 1]?.node || "";
+    
+    if (currentProductIndex === 0 && from === 'EX') {
+      return `Product ${currentProductIndex + 1} of ${productSegments.length}`;
     }
     
-    const from = path[currentPathIndex-1]?.node || "";
-    const to = path[currentPathIndex]?.node || "";
-    
-    if (currentPathIndex >= path.length - 1) {
-      return `Final step: ${from} to ${to}`;
+    if (currentProductIndex >= productSegments.length - 1) {
+      return `Product ${currentProductIndex + 1} of ${productSegments.length}`;
     }
     
-    return `Step ${currentPathIndex} of ${path.length-1}: ${from} to ${to}`;
+    return `Product ${currentProductIndex + 1} of ${productSegments.length}`;
   };
 
   return (
@@ -459,19 +375,7 @@ const IndoorMap = ({
           </div>
         )}
         
-        <div className="flex flex-wrap gap-2 mb-4">
-          <button 
-            onClick={findOptimizedRoute}
-            disabled={loading || selectedItems.length === 0}
-            className={`px-4 py-2 rounded ${
-              loading || selectedItems.length === 0 
-                ? 'bg-gray-300 cursor-not-allowed' 
-                : 'bg-blue-500 hover:bg-blue-600 text-white'
-            }`}
-          >
-            {loading ? 'Calculating...' : 'Optimized Route'}
-          </button>
-          
+        <div className="flex flex-wrap gap-2 mb-4">      
           <button 
             onClick={findSequentialPath}
             disabled={loading || selectedItems.length === 0}
@@ -481,7 +385,7 @@ const IndoorMap = ({
                 : 'bg-green-500 hover:bg-green-600 text-white'
             }`}
           >
-            {loading ? 'Calculating...' : 'Sequential Path'}
+            {loading ? 'Calculating...' : 'Path'}
           </button>
           
           <button 
@@ -490,49 +394,36 @@ const IndoorMap = ({
           >
             Reset
           </button>
-          
-          <button 
-            onClick={() => setShowNodes(!showNodes)}
-            className={`px-4 py-2 rounded ${showNodes ? 'bg-green-500 text-white' : 'bg-gray-200'}`}
-          >
-            {showNodes ? 'Hide Nodes' : 'Show Nodes'}
-          </button>
-          
-          <button 
-            onClick={() => setShowEdges(!showEdges)}
-            className={`px-4 py-2 rounded ${showEdges ? 'bg-green-500 text-white' : 'bg-gray-200'}`}
-          >
-            {showEdges ? 'Hide Paths' : 'Show Paths'}
-          </button>
+      
         </div>
         
-        {/* Sequential navigation controls */}
-        {showingSequential && path.length > 0 && (
+        {/* Product navigation controls */}
+        {showingSequential && productSegments.length > 0 && (
           <div className="mb-4 bg-blue-50 p-3 rounded border border-blue-200">
             <p className="font-bold text-blue-800 mb-2">{getNavigationStatus()}</p>
             <div className="flex gap-2">
               <button 
                 onClick={showPreviousSegment}
-                disabled={currentPathIndex <= 1}
+                disabled={currentProductIndex <= 0}
                 className={`px-4 py-2 rounded ${
-                  currentPathIndex <= 1
+                  currentProductIndex <= 0
                     ? 'bg-gray-300 cursor-not-allowed' 
                     : 'bg-blue-500 hover:bg-blue-600 text-white'
                 }`}
               >
-                Previous
+                Previous Product
               </button>
               
               <button 
                 onClick={showNextSegment}
-                disabled={currentPathIndex >= path.length - 1}
+                disabled={currentProductIndex >= productSegments.length - 1}
                 className={`px-4 py-2 rounded ${
-                  currentPathIndex >= path.length - 1
+                  currentProductIndex >= productSegments.length - 1
                     ? 'bg-gray-300 cursor-not-allowed' 
                     : 'bg-blue-500 hover:bg-blue-600 text-white'
                 }`}
               >
-                Next
+                Next Product
               </button>
             </div>
           </div>

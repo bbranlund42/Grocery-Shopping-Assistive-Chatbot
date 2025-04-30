@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { House } from 'lucide-react';
 import axios from 'axios';
+import Header from '../NewHomePage/Header/Header';
 
 const OrderHistory = () => {
   const navigate = useNavigate();
@@ -82,23 +83,7 @@ const OrderHistory = () => {
 
   return (
     <div className="bg-white min-h-screen flex flex-col items-center">
-      {/* Header */}
-      <div className="w-full flex items-center justify-between p-4">
-        <button
-          className="bg-blue-400 text-white w-10 h-10 flex items-center justify-center rounded-full"
-          onClick={() => navigate(-1)}
-        >
-          ⬅
-        </button>
-        <div className="text-blue-600 text-2xl font-medium">Order History</div>
-        <button
-          className="bg-blue-400 text-white w-10 h-10 flex items-center justify-center rounded"
-          onClick={() => navigate("/")}
-        >
-          <House size={24} />
-        </button>
-      </div>
-
+      <Header />
       {/* Order History Container */}
       <div className="w-full max-w-md p-4 mx-4">
         {isLoading ? (
